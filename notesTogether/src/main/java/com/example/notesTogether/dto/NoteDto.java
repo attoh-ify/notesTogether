@@ -1,5 +1,6 @@
 package com.example.notesTogether.dto;
 
+import com.example.notesTogether.entities.NoteVersion;
 import com.example.notesTogether.entities.NoteVisibility;
 import com.example.notesTogether.entities.User;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,11 +24,6 @@ public record NoteDto(
         String title,
 
         @Schema(
-                description = "Content of the note in JSON format, representing blocks, metadata, and formatting"
-        )
-        String contentJson,
-
-        @Schema(
                 description = "User who owns the note"
         )
         User user,
@@ -47,6 +43,16 @@ public record NoteDto(
                 description = "List of viewers (user ID's) associated with the note"
         )
         List<UUID> viewers,
+
+        @Schema(
+                description = "Current note version UUID"
+        )
+        UUID currentNoteVersion,
+
+        @Schema(
+                description = "List of note versions associated with the note"
+        )
+        List<NoteVersionDto> noteVersions,
 
         @Schema(
                 description = "Timestamp when the note was created",

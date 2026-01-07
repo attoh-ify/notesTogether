@@ -6,29 +6,25 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "note_versions",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"note_id", "version_number"})
-        }
-)
+@Table(name = "note_versions")
 public class NoteVersion {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "note_id", nullable = false)
-    private UUID noteId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "note_id", nullable = false)
+    private Note note;
 
-    @Lob
+    @Lob  // Large Object
     @Column(name = "content_json", nullable = false)
     private String contentJson;
 
     @Column(name = "created_by", nullable = false)
     private UUID createdBy;
 
-    @Column(name = "version_number", nullable = false)
+    @Column(name = "version_number", nullable = false, unique = true)
     private Integer versionNumber;
 
     @Column(name = "created_at", nullable = false)
@@ -38,13 +34,13 @@ public class NoteVersion {
 
     public NoteVersion(
             UUID id,
-            UUID noteId,
+            Note note,
             String contentJson,
             UUID createdBy,
             Integer versionNumber
     ) {
         this.id = id;
-        this.noteId = noteId;
+        this.note = note;
         this.contentJson = contentJson;
         this.createdBy = createdBy;
         this.versionNumber = versionNumber;
@@ -63,12 +59,12 @@ public class NoteVersion {
         this.id = id;
     }
 
-    public UUID getNoteId() {
-        return noteId;
+    public Note getNote() {
+        return note;
     }
 
-    public void setNoteId(UUID noteId) {
-        this.noteId = noteId;
+    public void setNote(Note note) {
+        this.note = note;
     }
 
     public String getContentJson() {

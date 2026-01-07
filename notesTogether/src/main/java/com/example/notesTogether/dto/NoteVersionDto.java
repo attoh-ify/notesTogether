@@ -14,12 +14,6 @@ public record NoteVersionDto(
         UUID id,
 
         @Schema(
-                description = "Identifier of the note this version belongs to",
-                example = "c9b1f8a0-3d15-4a12-bd5a-7c0d0e7b2f1f"
-        )
-        UUID noteId,
-
-        @Schema(
                 description = "Content of the note in JSON format for this version"
         )
         String contentJson,

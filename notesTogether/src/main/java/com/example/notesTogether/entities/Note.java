@@ -17,10 +17,6 @@ public class Note {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Lob  // Large Object
-    @Column(name = "content_json", nullable = false)
-    private String contentJson;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -35,6 +31,12 @@ public class Note {
     @Column(name = "viewers")
     private List<UUID> viewers;
 
+    @Column(name = "current_note_version")
+    private UUID currentNoteVersion;
+
+    @OneToMany(mappedBy = "note", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private List<NoteVersion> noteVersions;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -43,14 +45,15 @@ public class Note {
 
     public Note() {}
 
-    public Note(UUID id, String title, String contentJson, User user, NoteVisibility visibility,  List<UUID> collaborators,  List<UUID> viewers) {
+    public Note(UUID id, String title, User user, NoteVisibility visibility,  List<UUID> collaborators,  List<UUID> viewers, UUID currentNoteVersion, List<NoteVersion> noteVersions) {
         this.id = id;
         this.title = title;
-        this.contentJson = contentJson;
         this.user = user;
         this.visibility = visibility;
         this.collaborators = collaborators;
         this.viewers = viewers;
+        this.currentNoteVersion = currentNoteVersion;
+        this.noteVersions = noteVersions;
     }
 
     @PrePersist
@@ -78,14 +81,6 @@ public class Note {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getContentJson() {
-        return contentJson;
-    }
-
-    public void setContentJson(String contentJson) {
-        this.contentJson = contentJson;
     }
 
     public User getUser() {
@@ -118,6 +113,22 @@ public class Note {
 
     public void setViewers(List<UUID> viewers) {
         this.viewers = viewers;
+    }
+
+    public UUID getCurrentNoteVersion() {
+        return currentNoteVersion;
+    }
+
+    public void setCurrentNoteVersion(UUID currentNoteVersion) {
+        this.currentNoteVersion = currentNoteVersion;
+    }
+
+    public List<NoteVersion> getNoteVersions() {
+        return noteVersions;
+    }
+
+    public void setNoteVersions(List<NoteVersion> noteVersions) {
+        this.noteVersions = noteVersions;
     }
 
     public LocalDateTime getCreatedAt() {
