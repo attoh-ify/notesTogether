@@ -3,6 +3,7 @@ package com.example.notesTogether.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -16,6 +17,9 @@ public class User {
     @Column(name = "email", nullable = false)
     private String email;
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private List<Note> notes;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -24,9 +28,10 @@ public class User {
 
     public User() {}
 
-    public User(UUID id, String email) {
+    public User(UUID id, String email, List<Note> notes) {
         this.id = id;
         this.email = email;
+        this.notes = notes;
     }
 
     @PrePersist
@@ -54,6 +59,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<Note> getNotes() {
+        return notes;
+    }
+
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
     }
 
     public LocalDateTime getCreatedAt() {

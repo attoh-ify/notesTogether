@@ -1,9 +1,11 @@
 package com.example.notesTogether.dto;
 
 import com.example.notesTogether.entities.NoteVisibility;
+import com.example.notesTogether.entities.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Schema(description = "Represents a note returned by the NotesTogether service")
@@ -26,16 +28,25 @@ public record NoteDto(
         String contentJson,
 
         @Schema(
-                description = "Identifier of the user who owns the note",
-                example = "c9b1f8a0-3d15-4a12-bd5a-7c0d0e7b2f1f"
+                description = "User who owns the note"
         )
-        UUID ownerId,
+        User user,
 
         @Schema(
                 description = "Visibility of the note, either private or public",
                 example = "PRIVATE"
         )
         NoteVisibility visibility,
+
+        @Schema(
+                description = "List of collaborators (user ID's) associated with the note"
+        )
+        List<UUID> collaborators,
+
+        @Schema(
+                description = "List of viewers (user ID's) associated with the note"
+        )
+        List<UUID> viewers,
 
         @Schema(
                 description = "Timestamp when the note was created",

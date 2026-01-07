@@ -3,6 +3,7 @@ package com.example.notesTogether.entities;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -20,12 +21,19 @@ public class Note {
     @Column(name = "content_json", nullable = false)
     private String contentJson;
 
-    @Column(name = "owner_id", nullable = false)
-    private UUID ownerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false)
     private NoteVisibility visibility;
+
+    @Column(name = "collaborator")
+    private List<UUID> collaborators;
+
+    @Column(name = "viewers")
+    private List<UUID> viewers;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -35,12 +43,14 @@ public class Note {
 
     public Note() {}
 
-    public Note(UUID id, String title, String contentJson, UUID ownerId, NoteVisibility visibility) {
+    public Note(UUID id, String title, String contentJson, User user, NoteVisibility visibility,  List<UUID> collaborators,  List<UUID> viewers) {
         this.id = id;
         this.title = title;
         this.contentJson = contentJson;
-        this.ownerId = ownerId;
+        this.user = user;
         this.visibility = visibility;
+        this.collaborators = collaborators;
+        this.viewers = viewers;
     }
 
     @PrePersist
@@ -78,12 +88,12 @@ public class Note {
         this.contentJson = contentJson;
     }
 
-    public UUID getOwnerId() {
-        return ownerId;
+    public User getUser() {
+        return user;
     }
 
-    public void setOwnerId(UUID ownerId) {
-        this.ownerId = ownerId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public NoteVisibility getVisibility() {
@@ -92,6 +102,22 @@ public class Note {
 
     public void setVisibility(NoteVisibility visibility) {
         this.visibility = visibility;
+    }
+
+    public List<UUID> getCollaborators() {
+        return collaborators;
+    }
+
+    public void setCollaborators(List<UUID> collaborators) {
+        this.collaborators = collaborators;
+    }
+
+    public List<UUID> getViewers() {
+        return viewers;
+    }
+
+    public void setViewers(List<UUID> viewers) {
+        this.viewers = viewers;
     }
 
     public LocalDateTime getCreatedAt() {

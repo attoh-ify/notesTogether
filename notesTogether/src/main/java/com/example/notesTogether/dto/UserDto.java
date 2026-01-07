@@ -3,6 +3,7 @@ package com.example.notesTogether.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Schema(description = "Represents a user in the NotesTogether service")
@@ -18,6 +19,9 @@ public record UserDto(
                 example = "user@example.com"
         )
         String email,
+
+        @Schema(description = "List of notes owned by the user")
+        List<NoteDto> notes,
 
         @Schema(
                 description = "Timestamp when the user was created",
