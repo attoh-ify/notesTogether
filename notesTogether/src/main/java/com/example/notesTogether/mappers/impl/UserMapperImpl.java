@@ -1,6 +1,7 @@
 package com.example.notesTogether.mappers.impl;
 
 import com.example.notesTogether.dto.UserDto;
+import com.example.notesTogether.entities.NoteAccessRole;
 import com.example.notesTogether.entities.User;
 import com.example.notesTogether.mappers.NoteMapper;
 import com.example.notesTogether.mappers.UserMapper;
@@ -36,7 +37,9 @@ public class UserMapperImpl implements UserMapper {
                 user.getEmail(),
                 Optional.ofNullable(user.getNotes())
                                 .map(notes -> notes.stream()
-                                        .map(noteMapper::toDto)
+                                        .map(note -> {
+                                            return noteMapper.toDto(note, NoteAccessRole.OWNER);
+                                        })
                                         .toList()
                                 ).orElse(null),
                 user.getCreatedAt(),

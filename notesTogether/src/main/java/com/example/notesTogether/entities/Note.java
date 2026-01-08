@@ -25,11 +25,8 @@ public class Note {
     @Column(name = "visibility", nullable = false)
     private NoteVisibility visibility;
 
-    @Column(name = "collaborator")
-    private List<UUID> collaborators;
-
-    @Column(name = "viewers")
-    private List<UUID> viewers;
+    @OneToMany(mappedBy = "note", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private List<NoteAccess> noteAccesses;
 
     @Column(name = "current_note_version")
     private UUID currentNoteVersion;
@@ -45,13 +42,12 @@ public class Note {
 
     public Note() {}
 
-    public Note(UUID id, String title, User user, NoteVisibility visibility,  List<UUID> collaborators,  List<UUID> viewers, UUID currentNoteVersion, List<NoteVersion> noteVersions) {
+    public Note(UUID id, String title, User user, NoteVisibility visibility,  List<NoteAccess> noteAccesses, UUID currentNoteVersion, List<NoteVersion> noteVersions) {
         this.id = id;
         this.title = title;
         this.user = user;
         this.visibility = visibility;
-        this.collaborators = collaborators;
-        this.viewers = viewers;
+        this.noteAccesses = noteAccesses;
         this.currentNoteVersion = currentNoteVersion;
         this.noteVersions = noteVersions;
     }
@@ -99,20 +95,12 @@ public class Note {
         this.visibility = visibility;
     }
 
-    public List<UUID> getCollaborators() {
-        return collaborators;
+    public List<NoteAccess> getNoteAccesses() {
+        return noteAccesses;
     }
 
-    public void setCollaborators(List<UUID> collaborators) {
-        this.collaborators = collaborators;
-    }
-
-    public List<UUID> getViewers() {
-        return viewers;
-    }
-
-    public void setViewers(List<UUID> viewers) {
-        this.viewers = viewers;
+    public void setNoteAccesses(List<NoteAccess> noteAccesses) {
+        this.noteAccesses = noteAccesses;
     }
 
     public UUID getCurrentNoteVersion() {

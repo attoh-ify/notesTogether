@@ -1,8 +1,7 @@
 package com.example.notesTogether.dto;
 
-import com.example.notesTogether.entities.NoteVersion;
+import com.example.notesTogether.entities.NoteAccessRole;
 import com.example.notesTogether.entities.NoteVisibility;
-import com.example.notesTogether.entities.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -26,7 +25,7 @@ public record NoteDto(
         @Schema(
                 description = "User who owns the note"
         )
-        User user,
+        UserDto user,
 
         @Schema(
                 description = "Visibility of the note, either private or public",
@@ -35,14 +34,15 @@ public record NoteDto(
         NoteVisibility visibility,
 
         @Schema(
-                description = "List of collaborators (user ID's) associated with the note"
+                description = "List of user users with access to the note"
         )
-        List<UUID> collaborators,
+        List<NoteAccessDto> noteAccesses,
 
         @Schema(
-                description = "List of viewers (user ID's) associated with the note"
+                description = "Current users role on the note",
+                example = "VIEWER"
         )
-        List<UUID> viewers,
+        NoteAccessRole accessRole,
 
         @Schema(
                 description = "Current note version UUID"

@@ -2,13 +2,18 @@ package com.example.notesTogether.services.impl;
 
 import com.example.notesTogether.dto.LoginDto;
 import com.example.notesTogether.entities.User;
+import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.repositories.UserRepository;
 import com.example.notesTogether.services.JwtService;
 import com.example.notesTogether.services.UserService;
+import com.example.notesTogether.utils.helpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,10 +32,15 @@ public class UserServiceImpl implements UserService {
     public String loginUser(LoginDto user) {
         log.info("Login attempt email={}", user.email());
 
-        if (userRepository.findByEmail(user.email()).isEmpty()) {
+        Optional<User> userExists = userRepository.findByEmail(user.email());
+        UUID userId;
+
+        if (userExists.isEmpty()) {
             log.info("Registering user email={}", user.email());
 
-            validateUser(user);
+            if (helpers.isBlank(user.email()))
+                throw new BadRequestException("Email required");
+
             User saved = userRepository.save(
                     new User(
                             null,
@@ -38,20 +48,22 @@ public class UserServiceImpl implements UserService {
                             null
                     )
             );
+            userId = saved.getId();
 
             log.info("User registered successfully userId={} email={}",
                     saved.getId(), saved.getEmail());
 
         }
+        userId = userExists.get().getId();
 
-        return jwtService.generateToken(user.email());
+        return jwtService.generateToken(user.email(), userId);
     }
 
     private void validateUser(LoginDto user) {
     }
 
     @Override
-    public void logoutUser(LoginDto user) {
+    public void logoutUser() {
 
     }
 }

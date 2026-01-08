@@ -3,7 +3,6 @@ package com.example.notesTogether.controllers;
 import com.example.notesTogether.dto.LoginDto;
 import com.example.notesTogether.dto.LoginResponseDto;
 import com.example.notesTogether.dto.ResponseDto;
-import com.example.notesTogether.mappers.UserMapper;
 import com.example.notesTogether.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,11 +16,9 @@ import org.springframework.web.bind.annotation.*;
 )
 public class UserController {
     private final UserService userService;
-    private final UserMapper userMapper;
 
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userMapper = userMapper;
     }
 
     @PostMapping("/login")
@@ -39,13 +36,16 @@ public class UserController {
         );
     }
 
-    @GetMapping("/test")
+    @GetMapping("/logout")
     @Operation(
-            summary = "Test route"
+            summary = "Logout user",
+            description = "Logs out a user using their access token"
     )
-    public ResponseDto testRoute() {
+    public ResponseDto logoutUser(
+            @RequestBody LoginDto dto
+    ) {
+        userService.logoutUser();
         return new ResponseDto(
-                "Success",
                 "Success"
         );
     }

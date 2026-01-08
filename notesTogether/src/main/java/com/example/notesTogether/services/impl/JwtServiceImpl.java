@@ -15,6 +15,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -29,21 +30,23 @@ public class JwtServiceImpl implements JwtService {
         log.info("JWTService initialized with configured secret");
     }
 
-    public String generateToken(String username) {
-        log.info("Generating JWT token for email={}", username);
+    public String generateToken(String email, UUID userId) {
+        log.info("Generating JWT token for email={}", email);
 
         Map<String, Object> claims = new HashMap<>();
+        claims.put("id", userId);
+
         String token = Jwts.builder()
                 .claims()
                 .add(claims)
-                .subject(username)
+                .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000)) // 7 days
                 .and()
                 .signWith(getKey())
                 .compact();
 
-        log.debug("JWT token generated successfully for user={}", username);
+        log.debug("JWT token generated successfully for email={}", email);
         return token;
     }
 
@@ -56,6 +59,13 @@ public class JwtServiceImpl implements JwtService {
     public String extractUsername(String token) {
         log.debug("Extracting username from JWT");
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public UUID extractUserId(String token) {
+        log.debug("Extracting user id from JWT");
+        return UUID.fromString(
+                extractClaim(token, claims -> claims.get("id", String.class))
+        );
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {

@@ -4,5 +4,5 @@ import com.example.notesTogether.dto.LoginDto;
 
 public interface UserService {
     String loginUser(LoginDto user);
-    void logoutUser(LoginDto user);
+    void logoutUser();
 }

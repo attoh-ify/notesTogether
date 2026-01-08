@@ -2,8 +2,11 @@ package com.example.notesTogether.mappers.impl;
 
 import com.example.notesTogether.dto.NoteDto;
 import com.example.notesTogether.entities.Note;
+import com.example.notesTogether.entities.NoteAccessRole;
+import com.example.notesTogether.mappers.NoteAccessMapper;
 import com.example.notesTogether.mappers.NoteMapper;
 import com.example.notesTogether.mappers.NoteVersionMapper;
+import com.example.notesTogether.mappers.UserMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -11,9 +14,13 @@ import java.util.Optional;
 @Component
 public class NoteMapperImpl implements NoteMapper {
     private final NoteVersionMapper noteVersionMapper;
+    private final NoteAccessMapper noteAccessMapper;
+    private final UserMapper userMapper;
 
-    public NoteMapperImpl(NoteVersionMapper noteVersionMapper) {
+    public NoteMapperImpl(NoteVersionMapper noteVersionMapper, NoteAccessMapper noteAccessMapper, UserMapper userMapper) {
         this.noteVersionMapper = noteVersionMapper;
+        this.noteAccessMapper = noteAccessMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -21,10 +28,13 @@ public class NoteMapperImpl implements NoteMapper {
         return new Note(
                 noteDto.id(),
                 noteDto.title(),
-                noteDto.user(),
+                userMapper.fromDto(noteDto.user()),
                 noteDto.visibility(),
-                noteDto.collaborators(),
-                noteDto.viewers(),
+                Optional.ofNullable(noteDto.noteAccesses())
+                        .map(notes -> notes.stream()
+                                .map(noteAccessMapper::fromDto)
+                                .toList()
+                        ).orElse(null),
                 noteDto.currentNoteVersion(),
                 Optional.ofNullable(noteDto.noteVersions())
                         .map(notes -> notes.stream()
@@ -35,14 +45,18 @@ public class NoteMapperImpl implements NoteMapper {
     }
 
     @Override
-    public NoteDto toDto(Note note) {
+    public NoteDto toDto(Note note, NoteAccessRole accessRole) {
         return new NoteDto(
                 note.getId(),
                 note.getTitle(),
-                note.getUser(),
+                userMapper.toDto(note.getUser()),
                 note.getVisibility(),
-                note.getCollaborators(),
-                note.getViewers(),
+                Optional.ofNullable(note.getNoteAccesses())
+                        .map(notes -> notes.stream()
+                                .map(noteAccessMapper::toDto)
+                                .toList()
+                        ).orElse(null),
+                accessRole,
                 note.getCurrentNoteVersion(),
                 Optional.ofNullable(note.getNoteVersions())
                                 .map(notes -> notes.stream()
