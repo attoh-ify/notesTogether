@@ -14,9 +14,6 @@ public class Note {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "title", nullable = false)
-    private String title;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -42,9 +39,8 @@ public class Note {
 
     public Note() {}
 
-    public Note(UUID id, String title, User user, NoteVisibility visibility,  List<NoteAccess> noteAccesses, UUID currentNoteVersion, List<NoteVersion> noteVersions) {
+    public Note(UUID id, User user, NoteVisibility visibility,  List<NoteAccess> noteAccesses, UUID currentNoteVersion, List<NoteVersion> noteVersions) {
         this.id = id;
-        this.title = title;
         this.user = user;
         this.visibility = visibility;
         this.noteAccesses = noteAccesses;
@@ -69,14 +65,6 @@ public class Note {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public User getUser() {

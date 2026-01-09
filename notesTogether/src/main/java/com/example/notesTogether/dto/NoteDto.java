@@ -17,12 +17,6 @@ public record NoteDto(
         UUID id,
 
         @Schema(
-                description = "Title of the note",
-                example = "Project Meeting Notes"
-        )
-        String title,
-
-        @Schema(
                 description = "User who owns the note"
         )
         UserDto user,

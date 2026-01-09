@@ -17,3 +17,11 @@ spring:
     level:
       org.hibernate.SQL: debug
       org.hibernate.tool.schema: trace
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  cache:
+    type: redis

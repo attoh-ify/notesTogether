@@ -6,6 +6,7 @@ import com.example.notesTogether.dto.ResponseDto;
 import com.example.notesTogether.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,6 +27,7 @@ public class UserController {
             summary = "Authenticate user",
             description = "Authenticates a user using email and password and returns an access token"
     )
+    @ResponseStatus(value = HttpStatus.OK)
     public ResponseDto loginUser(
             @RequestBody LoginDto dto
     ) {
@@ -41,6 +43,7 @@ public class UserController {
             summary = "Logout user",
             description = "Logs out a user using their access token"
     )
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public ResponseDto logoutUser(
             @RequestBody LoginDto dto
     ) {

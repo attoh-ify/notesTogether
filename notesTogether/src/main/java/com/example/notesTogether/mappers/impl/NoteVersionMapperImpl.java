@@ -9,21 +9,21 @@ import org.springframework.stereotype.Component;
 public class NoteVersionMapperImpl implements NoteVersionMapper {
     @Override
     public NoteVersion fromDto(NoteVersionDto noteVersionDto) {
-        NoteVersion noteVersion = new NoteVersion(
+        return new NoteVersion(
                 noteVersionDto.id(),
                 null,
+                noteVersionDto.title(),
                 noteVersionDto.contentJson(),
                 noteVersionDto.createdBy(),
                 noteVersionDto.versionNumber()
         );
-        noteVersion.setCreatedAt(noteVersionDto.createdAt());
-        return noteVersion;
     }
 
     @Override
     public NoteVersionDto toDto(NoteVersion noteVersion) {
         return new NoteVersionDto(
                 noteVersion.getId(),
+                noteVersion.getTitle(),
                 noteVersion.getContentJson(),
                 noteVersion.getCreatedBy(),
                 noteVersion.getVersionNumber(),

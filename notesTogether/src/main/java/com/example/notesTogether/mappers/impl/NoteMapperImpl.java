@@ -27,17 +27,16 @@ public class NoteMapperImpl implements NoteMapper {
     public Note fromDto(NoteDto noteDto) {
         return new Note(
                 noteDto.id(),
-                noteDto.title(),
                 userMapper.fromDto(noteDto.user()),
                 noteDto.visibility(),
                 Optional.ofNullable(noteDto.noteAccesses())
-                        .map(notes -> notes.stream()
+                        .map(noteAccesses -> noteAccesses.stream()
                                 .map(noteAccessMapper::fromDto)
                                 .toList()
                         ).orElse(null),
                 noteDto.currentNoteVersion(),
                 Optional.ofNullable(noteDto.noteVersions())
-                        .map(notes -> notes.stream()
+                        .map(noteVersions -> noteVersions.stream()
                                 .map(noteVersionMapper::fromDto)
                                 .toList()
                         ).orElse(null)
@@ -48,18 +47,22 @@ public class NoteMapperImpl implements NoteMapper {
     public NoteDto toDto(Note note, NoteAccessRole accessRole) {
         return new NoteDto(
                 note.getId(),
-                note.getTitle(),
                 userMapper.toDto(note.getUser()),
                 note.getVisibility(),
                 Optional.ofNullable(note.getNoteAccesses())
-                        .map(notes -> notes.stream()
-                                .map(noteAccessMapper::toDto)
+                        .map(noteAccesses -> noteAccesses.stream()
+                                .map(noteAccess -> {
+                                    if (!accessRole.equals(NoteAccessRole.OWNER)) {
+                                        return null;
+                                    }
+                                    return noteAccessMapper.toDto(noteAccess);
+                                })
                                 .toList()
                         ).orElse(null),
                 accessRole,
                 note.getCurrentNoteVersion(),
                 Optional.ofNullable(note.getNoteVersions())
-                                .map(notes -> notes.stream()
+                                .map(noteVersions -> noteVersions.stream()
                                         .map(noteVersionMapper::toDto)
                                         .toList()
                                 ).orElse(null),

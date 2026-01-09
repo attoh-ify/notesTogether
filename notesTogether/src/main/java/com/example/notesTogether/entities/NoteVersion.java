@@ -13,6 +13,9 @@ public class NoteVersion {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "title", nullable = false)
+    private String title;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "note_id", nullable = false)
     private Note note;
@@ -35,12 +38,14 @@ public class NoteVersion {
     public NoteVersion(
             UUID id,
             Note note,
+            String title,
             String contentJson,
             UUID createdBy,
             Integer versionNumber
     ) {
         this.id = id;
         this.note = note;
+        this.title = title;
         this.contentJson = contentJson;
         this.createdBy = createdBy;
         this.versionNumber = versionNumber;
@@ -65,6 +70,14 @@ public class NoteVersion {
 
     public void setNote(Note note) {
         this.note = note;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getContentJson() {
