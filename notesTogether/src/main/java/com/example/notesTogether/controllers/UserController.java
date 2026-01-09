@@ -1,7 +1,7 @@
 package com.example.notesTogether.controllers;
 
-import com.example.notesTogether.dto.LoginDto;
-import com.example.notesTogether.dto.LoginResponseDto;
+import com.example.notesTogether.dto.user.LoginDto;
+import com.example.notesTogether.dto.user.LoginResponseDto;
 import com.example.notesTogether.dto.ResponseDto;
 import com.example.notesTogether.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;

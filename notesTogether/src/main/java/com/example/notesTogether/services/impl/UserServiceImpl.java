@@ -1,6 +1,6 @@
 package com.example.notesTogether.services.impl;
 
-import com.example.notesTogether.dto.LoginDto;
+import com.example.notesTogether.dto.user.LoginDto;
 import com.example.notesTogether.entities.User;
 import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.repositories.UserRepository;
@@ -57,9 +57,6 @@ public class UserServiceImpl implements UserService {
         userId = userExists.get().getId();
 
         return jwtService.generateToken(user.email(), userId);
-    }
-
-    private void validateUser(LoginDto user) {
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.notesTogether.dto;
+package com.example.notesTogether.dto.noteVersion;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

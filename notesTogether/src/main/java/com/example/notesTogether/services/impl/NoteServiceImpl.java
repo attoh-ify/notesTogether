@@ -1,7 +1,7 @@
 package com.example.notesTogether.services.impl;
 
-import com.example.notesTogether.dto.NoteDto;
-import com.example.notesTogether.dto.NotePayloadDto;
+import com.example.notesTogether.dto.note.NoteDto;
+import com.example.notesTogether.dto.note.NotePayloadDto;
 import com.example.notesTogether.entities.*;
 import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.mappers.NoteMapper;

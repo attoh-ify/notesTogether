@@ -1,6 +1,6 @@
 package com.example.notesTogether.mappers.impl;
 
-import com.example.notesTogether.dto.NoteAccessDto;
+import com.example.notesTogether.dto.noteAccess.NoteAccessDto;
 import com.example.notesTogether.entities.NoteAccess;
 import com.example.notesTogether.mappers.NoteAccessMapper;
 
@@ -19,6 +19,7 @@ public class NoteAccessMapperImpl implements NoteAccessMapper {
     public NoteAccessDto toDto(NoteAccess noteAccess) {
         return new NoteAccessDto(
                 noteAccess.getId(),
+                noteAccess.getNote().getId(),
                 noteAccess.getEmail(),
                 noteAccess.getRole()
         );

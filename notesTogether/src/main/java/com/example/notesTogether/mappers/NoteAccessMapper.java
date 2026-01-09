@@ -1,6 +1,6 @@
 package com.example.notesTogether.mappers;
 
-import com.example.notesTogether.dto.NoteAccessDto;
+import com.example.notesTogether.dto.noteAccess.NoteAccessDto;
 import com.example.notesTogether.entities.NoteAccess;
 
 public interface NoteAccessMapper {

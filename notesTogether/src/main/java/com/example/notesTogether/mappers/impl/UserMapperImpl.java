@@ -1,6 +1,6 @@
 package com.example.notesTogether.mappers.impl;
 
-import com.example.notesTogether.dto.UserDto;
+import com.example.notesTogether.dto.user.UserDto;
 import com.example.notesTogether.entities.NoteAccessRole;
 import com.example.notesTogether.entities.User;
 import com.example.notesTogether.mappers.NoteMapper;

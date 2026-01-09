@@ -1,5 +1,6 @@
-package com.example.notesTogether.dto;
+package com.example.notesTogether.dto.user;
 
+import com.example.notesTogether.dto.note.NoteDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;

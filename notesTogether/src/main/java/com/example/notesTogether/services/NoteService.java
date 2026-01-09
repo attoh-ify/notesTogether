@@ -1,7 +1,7 @@
 package com.example.notesTogether.services;
 
-import com.example.notesTogether.dto.NoteDto;
-import com.example.notesTogether.dto.NotePayloadDto;
+import com.example.notesTogether.dto.note.NoteDto;
+import com.example.notesTogether.dto.note.NotePayloadDto;
 
 import java.util.List;
 import java.util.UUID;

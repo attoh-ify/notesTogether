@@ -8,7 +8,7 @@ import java.util.UUID;
 @Table(
         name = "note_access",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"note_id", "user_id"})
+                @UniqueConstraint(columnNames = {"note_id", "email"})
         }
 )
 public class NoteAccess {

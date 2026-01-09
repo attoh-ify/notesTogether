@@ -1,6 +1,6 @@
 package com.example.notesTogether.mappers.impl;
 
-import com.example.notesTogether.dto.NoteVersionDto;
+import com.example.notesTogether.dto.noteVersion.NoteVersionDto;
 import com.example.notesTogether.entities.NoteVersion;
 import com.example.notesTogether.mappers.NoteVersionMapper;
 import org.springframework.stereotype.Component;

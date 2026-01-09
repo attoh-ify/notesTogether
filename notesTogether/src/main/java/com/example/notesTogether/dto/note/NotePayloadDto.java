@@ -1,4 +1,4 @@
-package com.example.notesTogether.dto;
+package com.example.notesTogether.dto.note;
 
 import java.util.UUID;
 

@@ -1,5 +1,8 @@
-package com.example.notesTogether.dto;
+package com.example.notesTogether.dto.note;
 
+import com.example.notesTogether.dto.noteVersion.NoteVersionDto;
+import com.example.notesTogether.dto.user.UserDto;
+import com.example.notesTogether.dto.noteAccess.NoteAccessDto;
 import com.example.notesTogether.entities.NoteAccessRole;
 import com.example.notesTogether.entities.NoteVisibility;
 import io.swagger.v3.oas.annotations.media.Schema;

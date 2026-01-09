@@ -1,6 +1,6 @@
 package com.example.notesTogether.config;
 
-import com.example.notesTogether.dto.NotePayloadDto;
+import com.example.notesTogether.dto.note.NotePayloadDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
