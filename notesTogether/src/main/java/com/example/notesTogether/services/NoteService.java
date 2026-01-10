@@ -10,8 +10,9 @@ import java.util.UUID;
 public interface NoteService {
     List<NoteDto> fetchNotes(String actorEmail);
     NoteDto fetchNote(String actorEmail, UUID noteId);
-    NotePayloadDto saveNote(String actorEmail, NotePayloadDto note);
-    NotePayloadDto updateNote(String actorEmail, NotePayloadDto note);
+    NotePayloadDto saveNote(NotePayloadDto note);
+    NotePayloadDto updateNote(NotePayloadDto note);
+    NotePayloadDto addUserToLiveUpdate(NotePayloadDto note);
     void deleteNote(String actorEmail, UUID noteId);
     void changeNoteVisibility(String userEmail, UUID noteId, NoteVisibility visibility);
 }

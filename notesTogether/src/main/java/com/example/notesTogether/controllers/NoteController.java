@@ -13,6 +13,7 @@ import com.example.notesTogether.services.NoteVersionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,15 +29,17 @@ public class NoteController {
     private final NoteService noteService;
     private final NoteAccessService noteAccessService;
     private final NoteVersionService noteVersionService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public NoteController(
             NoteService noteService,
             NoteAccessService noteAccessService,
-            NoteVersionService noteVersionService
+            NoteVersionService noteVersionService, SimpMessagingTemplate messagingTemplate
     ) {
         this.noteService = noteService;
         this.noteAccessService = noteAccessService;
         this.noteVersionService = noteVersionService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     // ------------------- NOTES -------------------

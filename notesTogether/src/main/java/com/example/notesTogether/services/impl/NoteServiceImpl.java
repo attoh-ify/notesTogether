@@ -75,10 +75,10 @@ public class NoteServiceImpl implements NoteService {
 
     @Transactional
     @Override
-    public NotePayloadDto saveNote(String actorEmail, NotePayloadDto note) {
-        User user = userRepository.findByEmail(actorEmail)
+    public NotePayloadDto saveNote(NotePayloadDto note) {
+        User user = userRepository.findByEmail(note.actorEmail())
                 .orElseThrow(() -> {
-                    log.warn("User not found email={}", actorEmail);
+                    log.warn("User not found email={}", note.actorEmail());
                     return new BadRequestException(
                             "User with this email is not registered."
                     );
@@ -89,7 +89,7 @@ public class NoteServiceImpl implements NoteService {
 
         int versionNumber;
 
-        if (note.id() == null) {
+        if (note.noteId() == null) {
             versionNumber = 1;
             Note newNote = noteRepository.save(
                     new Note(
@@ -116,16 +116,16 @@ public class NoteServiceImpl implements NoteService {
             newNote.setCurrentNoteVersion(firstNoteVersion.getId());
             newNote.setNoteVersions(List.of(firstNoteVersion));
         } else {
-            Note saveNote = notePolicyService.findNoteById(note.id());
+            Note saveNote = notePolicyService.findNoteById(note.noteId());
 
-            NoteAccessRole accessRole = notePolicyService.resolveRole(actorEmail, saveNote);
+            NoteAccessRole accessRole = notePolicyService.resolveRole(note.actorEmail(), saveNote);
 
             if (!accessRole.equals(NoteAccessRole.OWNER) && !accessRole.equals(NoteAccessRole.EDITOR)) {
-                log.warn("User with this email={} does not have permission to save this note", actorEmail);
+                log.warn("User with this email={} does not have permission to save this note", note.actorEmail());
                 throw new BadRequestException("User with this email does not have permission to save this note");
             }
 
-            versionNumber = Optional.ofNullable(noteVersionRepository.findMaxVersionByNoteId(note.id()))
+            versionNumber = Optional.ofNullable(noteVersionRepository.findMaxVersionByNoteId(note.noteId()))
                     .map(v -> v + 1)
                     .orElse(1);
 
@@ -145,7 +145,7 @@ public class NoteServiceImpl implements NoteService {
             noteRepository.save(saveNote);
 
             if (noteCache != null) {
-                noteCache.evict(note.id());
+                noteCache.evict(note.noteId());
             }
         }
         return note;
@@ -153,20 +153,51 @@ public class NoteServiceImpl implements NoteService {
 
     @Transactional
     @Override
-    public NotePayloadDto updateNote(String actorEmail, NotePayloadDto note) {
-        Note updateNote = notePolicyService.findNoteById(note.id());
+    public NotePayloadDto updateNote(NotePayloadDto note) {
+        Note updateNote = notePolicyService.findNoteById(note.noteId());
 
-        NoteAccessRole accessRole = notePolicyService.resolveRole(actorEmail, updateNote);
+        NoteAccessRole accessRole = notePolicyService.resolveRole(note.actorEmail(), updateNote);
 
         if (!accessRole.equals(NoteAccessRole.OWNER) && !accessRole.equals(NoteAccessRole.EDITOR)) {
-            log.warn("User with this email={} does not have permission to update this note", actorEmail);
+            log.warn("User with this email={} does not have permission to update this note", note.actorEmail());
             throw new BadRequestException("User with this email does not have permission to update this note");
         }
 
         if (noteCache != null) {
-            noteCache.put(note.id(), note);
+            noteCache.put(note.noteId(), note);
         }
         return note;
+    }
+
+    @Override
+    public NotePayloadDto addUserToLiveUpdate(NotePayloadDto note) {
+        Note currentNote = notePolicyService.isEditor(note.actorEmail(), note.noteId());
+        NoteVersion currentNoteVersion = noteVersionRepository.findById(currentNote.getCurrentNoteVersion())
+                .orElseThrow(() -> {
+                    log.warn("Note version not found for id={}", currentNote.getCurrentNoteVersion());
+                    return new BadRequestException("Note version not found");
+                });
+
+        NotePayloadDto payload;
+
+        if (noteCache != null) {
+            payload = noteCache.get(note.noteId(), NotePayloadDto.class);
+            if (payload != null) {
+                return new NotePayloadDto(
+                        note.actorEmail(),
+                        note.noteId(),
+                        payload.title(),
+                        payload.content(),
+                        WebsocketAction.JOIN);
+            }
+
+        }
+        return new NotePayloadDto(
+                note.actorEmail(),
+                note.noteId(),
+                currentNoteVersion.getTitle(),
+                currentNoteVersion.getContentJson(),
+                WebsocketAction.JOIN);
     }
 
     @Transactional
