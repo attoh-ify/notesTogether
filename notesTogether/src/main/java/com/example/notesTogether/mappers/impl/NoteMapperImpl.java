@@ -5,11 +5,15 @@ import com.example.notesTogether.dto.noteVersion.NoteVersionDto;
 import com.example.notesTogether.entities.Note;
 import com.example.notesTogether.entities.NoteAccessRole;
 import com.example.notesTogether.entities.NoteVersion;
+import com.example.notesTogether.entities.User;
+import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.mappers.NoteAccessMapper;
 import com.example.notesTogether.mappers.NoteMapper;
 import com.example.notesTogether.mappers.NoteVersionMapper;
-import com.example.notesTogether.mappers.UserMapper;
 import com.example.notesTogether.repositories.NoteVersionRepository;
+import com.example.notesTogether.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,21 +24,29 @@ import java.util.UUID;
 public class NoteMapperImpl implements NoteMapper {
     private final NoteVersionMapper noteVersionMapper;
     private final NoteAccessMapper noteAccessMapper;
-    private final UserMapper userMapper;
     private final NoteVersionRepository noteVersionRepository;
+    private final UserRepository userRepository;
 
-    public NoteMapperImpl(NoteVersionMapper noteVersionMapper, NoteAccessMapper noteAccessMapper, UserMapper userMapper, NoteVersionRepository noteVersionRepository) {
+    private static final Logger log =
+            LoggerFactory.getLogger(NoteMapperImpl.class);
+
+    public NoteMapperImpl(NoteVersionMapper noteVersionMapper, NoteAccessMapper noteAccessMapper, NoteVersionRepository noteVersionRepository, UserRepository userRepository) {
         this.noteVersionMapper = noteVersionMapper;
         this.noteAccessMapper = noteAccessMapper;
-        this.userMapper = userMapper;
         this.noteVersionRepository = noteVersionRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public Note fromDto(NoteDto noteDto) {
+        User user = userRepository.findById(noteDto.userId())
+                .orElseThrow(() -> {
+                    log.warn("User with id {} not found", noteDto.userId());
+                    return new BadRequestException("User with id not found");
+                });
         return new Note(
                 noteDto.id(),
-                userMapper.fromDto(noteDto.user()),
+                user,
                 noteDto.visibility(),
                 Optional.ofNullable(noteDto.noteAccesses())
                         .map(noteAccesses -> noteAccesses.stream()
@@ -54,7 +66,7 @@ public class NoteMapperImpl implements NoteMapper {
     public NoteDto toDto(Note note, NoteAccessRole accessRole) {
         return new NoteDto(
                 note.getId(),
-                userMapper.toDto(note.getUser()),
+                note.getUser().getId(),
                 note.getVisibility(),
                 Optional.ofNullable(note.getNoteAccesses())
                         .map(noteAccesses -> noteAccesses.stream()

@@ -35,9 +35,11 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
 
   redis:
-    image: redis.7.4.2
+    image: redis:7.0.12
     container_name: notes-redis
     restart: unless-stopped
     ports:

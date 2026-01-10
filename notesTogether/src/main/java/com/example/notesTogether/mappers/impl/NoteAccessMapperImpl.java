@@ -1,22 +1,26 @@
 package com.example.notesTogether.mappers.impl;
 
 import com.example.notesTogether.dto.noteAccess.NoteAccessDto;
+import com.example.notesTogether.entities.Note;
 import com.example.notesTogether.entities.NoteAccess;
 import com.example.notesTogether.mappers.NoteAccessMapper;
-import com.example.notesTogether.mappers.NoteMapper;
+import com.example.notesTogether.services.impl.NotePolicyService;
+import org.springframework.stereotype.Component;
 
+@Component
 public class NoteAccessMapperImpl implements NoteAccessMapper {
-    private final NoteMapper noteMapper;
+    private final NotePolicyService notePolicyService;
 
-    public NoteAccessMapperImpl(NoteMapper noteMapper) {
-        this.noteMapper = noteMapper;
+    public NoteAccessMapperImpl(NotePolicyService notePolicyService) {
+        this.notePolicyService = notePolicyService;
     }
 
     @Override
     public NoteAccess fromDto(NoteAccessDto noteAccessDto) {
+        Note note = noteAccessDto.noteId() != null ? notePolicyService.findNoteById(noteAccessDto.noteId()) : null;
         return new NoteAccess(
                 noteAccessDto.id(),
-                noteMapper.fromDto(noteAccessDto.note()),
+                note,
                 noteAccessDto.email(),
                 noteAccessDto.role()
         );
@@ -26,7 +30,7 @@ public class NoteAccessMapperImpl implements NoteAccessMapper {
     public NoteAccessDto toDto(NoteAccess noteAccess) {
         return new NoteAccessDto(
                 noteAccess.getId(),
-                noteMapper.toDto(noteAccess.getNote(), noteAccess.getRole()),
+                noteAccess.getNote().getId(),
                 noteAccess.getEmail(),
                 noteAccess.getRole()
         );

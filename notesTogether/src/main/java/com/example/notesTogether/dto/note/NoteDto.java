@@ -1,7 +1,6 @@
 package com.example.notesTogether.dto.note;
 
 import com.example.notesTogether.dto.noteVersion.NoteVersionDto;
-import com.example.notesTogether.dto.user.UserDto;
 import com.example.notesTogether.dto.noteAccess.NoteAccessDto;
 import com.example.notesTogether.entities.NoteAccessRole;
 import com.example.notesTogether.entities.NoteVisibility;
@@ -20,9 +19,10 @@ public record NoteDto(
         UUID id,
 
         @Schema(
-                description = "User who owns the note"
+                description = "Unique identifier of the user that owns the note",
+                example = "d290f1ee-6c54-4b01-90e6-d701748f0851"
         )
-        UserDto user,
+        UUID userId,
 
         @Schema(
                 description = "Visibility of the note, either private or public",

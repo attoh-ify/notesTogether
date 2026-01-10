@@ -10,17 +10,18 @@ import com.example.notesTogether.entities.User;
 import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.mappers.NoteAccessMapper;
 import com.example.notesTogether.repositories.NoteAccessRepository;
-import com.example.notesTogether.repositories.NoteRepository;
 import com.example.notesTogether.repositories.UserRepository;
 import com.example.notesTogether.services.NoteAccessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class NoteAccessServiceImpl implements NoteAccessService {
     private final NoteAccessRepository noteAccessRepository;
     private final NoteAccessMapper noteAccessMapper;
@@ -80,7 +81,7 @@ public class NoteAccessServiceImpl implements NoteAccessService {
     @Transactional
     @Override
     public NoteAccessDto updateAccess(String userEmail, NoteAccessDto noteAccess) {
-        notePolicyService.isOwner(userEmail, noteAccess.note().id());
+        notePolicyService.isOwner(userEmail, noteAccess.noteId());
         NoteAccess updateNoteAccess = noteAccessRepository.findById(noteAccess.id())
                 .orElseThrow(() -> {
                     log.warn("Note access not found id={}", noteAccess.id());

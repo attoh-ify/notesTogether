@@ -8,11 +8,13 @@ import com.example.notesTogether.repositories.NoteVersionRepository;
 import com.example.notesTogether.services.NoteVersionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class NoteVersionServiceImpl implements NoteVersionService {
     private final NoteRepository noteRepository;
     private final NoteVersionRepository noteVersionRepository;
