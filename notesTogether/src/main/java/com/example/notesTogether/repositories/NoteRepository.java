@@ -14,22 +14,8 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
     @Query("""
             SELECT DISTINCT n FROM Note n
             LEFT JOIN NoteAccess na ON na.note = n
-            n.user.email = :actorEmail
-            OR (
-                na.email = :actorEmail
-            )
+            WHERE n.user.email = :actorEmail
+                OR na.email = :actorEmail
             """)
     List<Note> findByActorEmail(String actorEmail);
-    @Query("""
-            SELECT DISTINCT n FROM Note n
-            LEFT JOIN NoteAccess na ON na.note = n
-            WHERE n.id = :noteId
-                AND(
-                    n.user.email = :actorEmail
-                    OR (
-                        na.email = :actorEmail
-                    )
-                )
-            """)
-    Optional<Note> findByNoteIdAndActorEmail(UUID noteId, String actorEmail);
 }

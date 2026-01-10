@@ -22,13 +22,13 @@ public class Note {
     @Column(name = "visibility", nullable = false)
     private NoteVisibility visibility;
 
-    @OneToMany(mappedBy = "note", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "note", cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<NoteAccess> noteAccesses;
 
     @Column(name = "current_note_version")
     private UUID currentNoteVersion;
 
-    @OneToMany(mappedBy = "note", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "note", cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     private List<NoteVersion> noteVersions;
 
     @Column(name = "created_at", nullable = false)

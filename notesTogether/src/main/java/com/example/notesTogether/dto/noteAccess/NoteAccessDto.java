@@ -1,5 +1,6 @@
 package com.example.notesTogether.dto.noteAccess;
 
+import com.example.notesTogether.dto.note.NoteDto;
 import com.example.notesTogether.entities.NoteAccessRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -14,10 +15,9 @@ public record NoteAccessDto(
         UUID id,
 
         @Schema(
-                description = "Unique identifier of the note the user has access to",
-                example = "d290f1ee-6c54-4b01-90e6-d701748f0851"
+                description = "Note that owns the note access"
         )
-        UUID noteId,
+        NoteDto note,
 
         @Schema(
                 description = "Email of the user who has access to the note",

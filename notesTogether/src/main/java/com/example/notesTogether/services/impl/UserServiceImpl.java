@@ -6,7 +6,7 @@ import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.repositories.UserRepository;
 import com.example.notesTogether.services.JwtService;
 import com.example.notesTogether.services.UserService;
-import com.example.notesTogether.utils.helpers;
+import com.example.notesTogether.utils.Helpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
         if (userExists.isEmpty()) {
             log.info("Registering user email={}", user.email());
 
-            if (helpers.isBlank(user.email()))
+            if (Helpers.isBlank(user.email()))
                 throw new BadRequestException("Email required");
 
             User saved = userRepository.save(

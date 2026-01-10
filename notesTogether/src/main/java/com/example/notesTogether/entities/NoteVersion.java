@@ -6,7 +6,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "note_versions")
+@Table(
+        name = "note_versions",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"note_id", "version_number"}
+        )
+)
 public class NoteVersion {
     @Id
     @Column(name = "id", updatable = false, nullable = false)
@@ -27,7 +32,7 @@ public class NoteVersion {
     @Column(name = "created_by", nullable = false)
     private UUID createdBy;
 
-    @Column(name = "version_number", nullable = false, unique = true)
+    @Column(name = "version_number", nullable = false)
     private Integer versionNumber;
 
     @Column(name = "created_at", nullable = false)
