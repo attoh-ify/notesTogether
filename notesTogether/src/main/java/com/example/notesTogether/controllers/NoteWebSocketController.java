@@ -1,12 +1,12 @@
 package com.example.notesTogether.controllers;
 
 import com.example.notesTogether.dto.note.NotePayloadDto;
+import com.example.notesTogether.entities.WebsocketAction;
 import com.example.notesTogether.services.NoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,11 +34,19 @@ public class NoteWebSocketController {
             @Payload NotePayloadDto payload,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        headerAccessor.getSessionAttributes().put("actorEmail", payload.actorEmail());
-        headerAccessor.getSessionAttributes().put("noteId", payload.noteId());
-        NotePayloadDto result = noteService.addUserToLiveUpdate(payload);
+            headerAccessor.getSessionAttributes().put("actorEmail", payload.actorEmail());
+            headerAccessor.getSessionAttributes().put("noteId", payload.noteId());
+            NotePayloadDto result = noteService.addUserToLiveUpdate(payload);
 
-        messagingTemplate.convertAndSend("/topic/public/" + payload.noteId(), result);
+            messagingTemplate.convertAndSend(
+                    "/topic/public/" + payload.noteId(),
+                    new NotePayloadDto(
+                            payload.actorEmail(),
+                            payload.noteId(),
+                            result.title(),
+                            result.content(),
+                            WebsocketAction.JOIN
+                    ));
     }
 
     @MessageMapping("/note.saveNote")
@@ -46,9 +54,18 @@ public class NoteWebSocketController {
     public void saveNote(
             @Payload NotePayloadDto payload
     ) {
-        NotePayloadDto result = noteService.saveNote(payload);
+            NotePayloadDto result = noteService.saveNote(payload);
 
-        messagingTemplate.convertAndSend("/topic/public/" + payload.noteId(), result);
+            messagingTemplate.convertAndSend(
+                    "/topic/public/" + payload.noteId(),
+                    new NotePayloadDto(
+                            payload.actorEmail(),
+                            payload.noteId(),
+                            result.title(),
+                            result.content(),
+                            WebsocketAction.SAVE
+                    )
+            );
     }
 
     @MessageMapping("/note.updateNote")
@@ -56,8 +73,34 @@ public class NoteWebSocketController {
     public void updateNote(
             @Payload NotePayloadDto payload
     ) {
-        NotePayloadDto result = noteService.updateNote(payload);
+            NotePayloadDto result = noteService.updateNote(payload);
 
-        messagingTemplate.convertAndSend("/topic/public/" + payload.noteId(), result);
+            messagingTemplate.convertAndSend(
+                    "/topic/public/" + payload.noteId(),
+                    new NotePayloadDto(
+                            payload.actorEmail(),
+                            payload.noteId(),
+                            result.title(),
+                            result.content(),
+                            WebsocketAction.UPDATE
+                    )
+            );
+    }
+
+    @MessageMapping("/note.userTyping")
+    @Operation(summary = "Notify user is typing")
+    public void notifyUserTyping(
+            @Payload NotePayloadDto payload
+    ) {
+            messagingTemplate.convertAndSend(
+                    "/topic/public/" + payload.noteId(),
+                    new NotePayloadDto(
+                            payload.actorEmail(),
+                            payload.noteId(),
+                            null,
+                            null,
+                            WebsocketAction.TYPING
+                    )
+            );
     }
 }

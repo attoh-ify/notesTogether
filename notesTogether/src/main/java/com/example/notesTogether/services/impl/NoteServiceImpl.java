@@ -116,14 +116,7 @@ public class NoteServiceImpl implements NoteService {
             newNote.setCurrentNoteVersion(firstNoteVersion.getId());
             newNote.setNoteVersions(List.of(firstNoteVersion));
         } else {
-            Note saveNote = notePolicyService.findNoteById(note.noteId());
-
-            NoteAccessRole accessRole = notePolicyService.resolveRole(note.actorEmail(), saveNote);
-
-            if (!accessRole.equals(NoteAccessRole.OWNER) && !accessRole.equals(NoteAccessRole.EDITOR)) {
-                log.warn("User with this email={} does not have permission to save this note", note.actorEmail());
-                throw new BadRequestException("User with this email does not have permission to save this note");
-            }
+            Note saveNote = notePolicyService.isEditor(note.actorEmail(), note.noteId());
 
             versionNumber = Optional.ofNullable(noteVersionRepository.findMaxVersionByNoteId(note.noteId()))
                     .map(v -> v + 1)
@@ -154,14 +147,7 @@ public class NoteServiceImpl implements NoteService {
     @Transactional
     @Override
     public NotePayloadDto updateNote(NotePayloadDto note) {
-        Note updateNote = notePolicyService.findNoteById(note.noteId());
-
-        NoteAccessRole accessRole = notePolicyService.resolveRole(note.actorEmail(), updateNote);
-
-        if (!accessRole.equals(NoteAccessRole.OWNER) && !accessRole.equals(NoteAccessRole.EDITOR)) {
-            log.warn("User with this email={} does not have permission to update this note", note.actorEmail());
-            throw new BadRequestException("User with this email does not have permission to update this note");
-        }
+        notePolicyService.isEditor(note.actorEmail(), note.noteId());
 
         if (noteCache != null) {
             noteCache.put(note.noteId(), note);

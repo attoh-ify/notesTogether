@@ -5,5 +5,6 @@ public enum WebsocketAction {
     UPDATE,
     DELETE,
     JOIN,
-    LEAVE
+    LEAVE,
+    TYPING
 }

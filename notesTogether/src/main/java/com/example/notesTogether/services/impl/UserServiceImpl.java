@@ -52,9 +52,9 @@ public class UserServiceImpl implements UserService {
 
             log.info("User registered successfully userId={} email={}",
                     saved.getId(), saved.getEmail());
-
+        } else {
+            userId = userExists.get().getId();
         }
-        userId = userExists.get().getId();
 
         return jwtService.generateToken(user.email(), userId);
     }
