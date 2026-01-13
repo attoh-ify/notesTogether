@@ -28,7 +28,7 @@ public class NoteWebSocketController {
             this.messagingTemplate = messagingTemplate;
         }
 
-    @MessageMapping("/note.addUser")
+    @MessageMapping("/note.join")
     @Operation(summary = "Add new user to live note editing")
     public void addUserToNoteLiveEdit(
             @Payload NotePayloadDto payload,
@@ -49,7 +49,7 @@ public class NoteWebSocketController {
                     ));
     }
 
-    @MessageMapping("/note.saveNote")
+    @MessageMapping("/note.save")
     @Operation(summary = "Save a note")
     public void saveNote(
             @Payload NotePayloadDto payload
@@ -68,7 +68,7 @@ public class NoteWebSocketController {
             );
     }
 
-    @MessageMapping("/note.updateNote")
+    @MessageMapping("/note.update")
     @Operation(summary = "Update a note")
     public void updateNote(
             @Payload NotePayloadDto payload
@@ -87,7 +87,7 @@ public class NoteWebSocketController {
             );
     }
 
-    @MessageMapping("/note.userTyping")
+    @MessageMapping("/note.typing")
     @Operation(summary = "Notify user is typing")
     public void notifyUserTyping(
             @Payload NotePayloadDto payload
