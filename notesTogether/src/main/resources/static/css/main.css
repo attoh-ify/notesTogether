@@ -1,0 +1,152 @@
+/* ===== RESET ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== GLOBAL ===== */
+body {
+    background: #f4f6f8;
+    color: #333;
+    padding: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+h1, h2 {
+    margin-bottom: 15px;
+}
+
+/* ===== LOGIN PAGE ===== */
+#login-page {
+    max-width: 400px;
+    margin: 80px auto;
+}
+
+.login-page-container {
+    background: white;
+    padding: 25px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.login-form-group {
+    margin-bottom: 15px;
+}
+
+.form {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+}
+
+/* ===== BUTTONS ===== */
+button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button.primary {
+    background: #1976d2;
+    color: white;
+}
+
+button.accent {
+    background: #2e7d32;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* ===== NOTES PAGE ===== */
+#notes-page {
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+.notes-page-container {
+    background: white;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+#notes-list {
+    list-style: none;
+    margin-top: 20px;
+}
+
+#notes-list li {
+    background: #eef2f5;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: pre-wrap;
+}
+
+#notes-list li:hover {
+    background: #dfe6ec;
+}
+
+/* ===== NOTE PAGE ===== */
+#note-page {
+    max-width: 700px;
+    margin: 40px auto;
+}
+
+.note-container {
+    background: white;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.chat-header {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+/* ===== MESSAGE AREA ===== */
+#message-area {
+    list-style: none;
+    min-height: 150px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+}
+
+#message-area li {
+    background: #f1f1f1;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    white-space: pre-wrap;
+}
+
+/* ===== INPUT AREA ===== */
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.input-group button {
+    white-space: nowrap;
+}

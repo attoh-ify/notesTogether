@@ -22,6 +22,7 @@ public class UserMapperImpl implements UserMapper {
         return new User(
                 userDto.id(),
                 userDto.email(),
+                userDto.password(),
                 Optional.ofNullable(userDto.notes())
                                 .map(notes -> notes.stream()
                                         .map(noteMapper::fromDto)
@@ -35,11 +36,10 @@ public class UserMapperImpl implements UserMapper {
         return new UserDto(
                 user.getId(),
                 user.getEmail(),
+                user.getPassword(),
                 Optional.ofNullable(user.getNotes())
                                 .map(notes -> notes.stream()
-                                        .map(note -> {
-                                            return noteMapper.toDto(note, NoteAccessRole.OWNER);
-                                        })
+                                        .map(noteMapper::toDto)
                                         .toList()
                                 ).orElse(null),
                 user.getCreatedAt(),

@@ -1,22 +1,32 @@
 package com.example.notesTogether.config;
 
 import com.example.notesTogether.filters.JwtFilter;
+import com.example.notesTogether.services.impl.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity // Enables Spring Security filter chain integration
 public class SecurityConfig {
+    // Custom UserDetailsService used by Spring Security to load users from DB
+    private final MyUserDetailsService userDetailsService;
+
     // Custom JWT filter that validates JWT on each request
     private final JwtFilter jwtFilter;
 
-    public SecurityConfig(JwtFilter jwtFilter) {
+    public SecurityConfig(MyUserDetailsService userDetailsService, JwtFilter jwtFilter) {
+        this.userDetailsService = userDetailsService;
         this.jwtFilter = jwtFilter;
     }
 
@@ -31,40 +41,56 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                // Disable CSRF protection (safe because we use stateless JWTs, not sessions)
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // Authorization rules for HTTP requests
                 .authorizeHttpRequests(request -> request
-                        // Swagger / OpenAPI (must be fully open)
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-
-                        // Public auth endpoints
                         .requestMatchers(
-                                "/api/users/login"
+                                "/",
+                                "/index.html",
+                                "/css/**",
+                                "/js/**"
                         ).permitAll()
-
-                        // Everything else requires JWT
+                        .requestMatchers(
+                                "/ws/**",
+                                "/ws/info",
+                                "/api/users/login",
+                                "/api/users/register"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
-
-                // Configure session management
                 .sessionManagement(
                         session ->
-                                // Do not create or use HTTP sessions
-                                // Each request must be authenticated independently (JWT)
                                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
-                // Register JWT filter BEFORE username/password authentication filter
-                // This ensures JWT is processed first on every request
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-
-                // Build the security filter chain
                 .build();
+    }
+
+    /**
+     * AuthenticationProvider responsible for:
+     *  - loading users via UserDetailsService
+     *  - validating passwords using BCrypt
+     */
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
+
+        provider.setUserDetailsService(userDetailsService);
+
+        return provider;
+    }
+
+    /**
+     * AuthenticationManager used during login
+     * Delegates authentication to configured AuthenticationProviders
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }

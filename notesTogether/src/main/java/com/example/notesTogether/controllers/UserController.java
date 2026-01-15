@@ -3,10 +3,12 @@ package com.example.notesTogether.controllers;
 import com.example.notesTogether.dto.user.LoginDto;
 import com.example.notesTogether.dto.user.LoginResponseDto;
 import com.example.notesTogether.dto.ResponseDto;
+import com.example.notesTogether.dto.user.UserDto;
+import com.example.notesTogether.entities.UserPrincipal;
+import com.example.notesTogether.security.CurrentUser;
 import com.example.notesTogether.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,12 +24,22 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/register")
+    @Operation(
+            summary = "Register a new user",
+            description = "Creates a new user account with the provided registration details"
+    )
+    public ResponseDto registerUser(
+            @RequestBody UserDto dto
+    ) {
+        return new ResponseDto("User registered", userService.registerUser(dto));
+    }
+
     @PostMapping("/login")
     @Operation(
             summary = "Authenticate user",
             description = "Authenticates a user using email and password and returns an access token"
     )
-    @ResponseStatus(value = HttpStatus.OK)
     public ResponseDto loginUser(
             @RequestBody LoginDto dto
     ) {
@@ -38,18 +50,14 @@ public class UserController {
         );
     }
 
-    @GetMapping("/logout")
+    @GetMapping
     @Operation(
-            summary = "Logout user",
-            description = "Logs out a user using their access token"
+            summary = "Get user profile",
+            description = "Retrieves user profile information using the user's email address"
     )
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public ResponseDto logoutUser(
-            @RequestBody LoginDto dto
+    public ResponseDto getDetails(
+            @CurrentUser UserPrincipal currentUser
     ) {
-        userService.logoutUser();
-        return new ResponseDto(
-                "Success"
-        );
+        return new ResponseDto("User fetched", userService.getUserDetails(currentUser.getUsername()));
     }
 }

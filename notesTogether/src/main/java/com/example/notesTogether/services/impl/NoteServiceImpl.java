@@ -7,7 +7,6 @@ import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.mappers.NoteMapper;
 import com.example.notesTogether.repositories.NoteRepository;
 import com.example.notesTogether.repositories.NoteVersionRepository;
-import com.example.notesTogether.repositories.UserRepository;
 import com.example.notesTogether.services.NoteService;
 import com.example.notesTogether.utils.Helpers;
 import org.slf4j.Logger;
@@ -25,22 +24,22 @@ import java.util.UUID;
 @Service
 public class NoteServiceImpl implements NoteService {
     private final NoteRepository noteRepository;
-    private final UserRepository userRepository;
     private final NoteMapper noteMapper;
     private final Cache noteCache;
     private final NoteVersionRepository noteVersionRepository;
     private final NotePolicyService notePolicyService;
+    private final UserPolicyService userPolicyService;
 
     private static final Logger log =
             LoggerFactory.getLogger(NoteServiceImpl.class);
 
-    public NoteServiceImpl(NoteRepository noteRepository, UserRepository userRepository, NoteMapper noteMapper, CacheManager cacheManager, NoteVersionRepository noteVersionRepository, NotePolicyService notePolicyService) {
+    public NoteServiceImpl(NoteRepository noteRepository, NoteMapper noteMapper, CacheManager cacheManager, NoteVersionRepository noteVersionRepository, NotePolicyService notePolicyService, UserPolicyService userPolicyService) {
         this.noteRepository = noteRepository;
-        this.userRepository = userRepository;
         this.noteMapper = noteMapper;
         this.noteCache = cacheManager.getCache("NOTE_CACHE");
         this.noteVersionRepository = noteVersionRepository;
         this.notePolicyService = notePolicyService;
+        this.userPolicyService = userPolicyService;
     }
 
     @Transactional(readOnly = true)
@@ -50,8 +49,7 @@ public class NoteServiceImpl implements NoteService {
         List<NoteDto> noteDtos = new ArrayList<>();
         if (notes.isEmpty()) return List.of();
         for (Note note : notes) {
-            NoteAccessRole accessRole = notePolicyService.resolveRole(actorEmail, note);
-            NoteDto noteDto = noteMapper.toDto(note, accessRole);
+            NoteDto noteDto = noteMapper.toDto(note);
             noteDtos.add(noteDto);
         }
         return noteDtos;
@@ -61,86 +59,88 @@ public class NoteServiceImpl implements NoteService {
     public NoteDto fetchNote(String actorEmail, UUID noteId) {
         Note note = notePolicyService.findNoteById(noteId);
 
-        NoteAccessRole accessRole = notePolicyService.resolveRole(actorEmail, note);
-
-        if (accessRole == null) {
+        if (notePolicyService.resolveRole(actorEmail, note) == null) {
             if (!note.getVisibility().equals(NoteVisibility.PUBLIC)) {
                 log.warn("Note with id={} visibility is not public", noteId);
                 throw new BadRequestException("Note visibility is not public");
             }
         }
 
-        return noteMapper.toDto(note, accessRole);
+        return noteMapper.toDto(note);
+    }
+
+    @Transactional
+    @Override
+    public NoteDto createNote(String actorEmail, NotePayloadDto note) {
+        User user = userPolicyService.userExists(actorEmail);
+
+        if (Helpers.isBlank(note.title()))
+            throw new BadRequestException("Note title is required");
+
+        Note newNote = new Note(
+                null,
+                user,
+                NoteVisibility.PUBLIC,
+                null,
+                null,
+                null
+        );
+        noteRepository.save(newNote);
+
+        NoteVersion firstNoteVersion = new NoteVersion(
+                null,
+                newNote,
+                note.title(),
+                note.content(),
+                user.getId(),
+                1
+        );
+        noteVersionRepository.save(firstNoteVersion);
+
+        newNote.setCurrentNoteVersion(firstNoteVersion.getId());
+        newNote.setNoteVersions(new ArrayList<>());
+        newNote.getNoteVersions().add(firstNoteVersion);
+
+        noteRepository.save(newNote);
+
+//        if (noteCache != null) {
+//            noteCache.evict(note.noteId());
+//        }
+        return noteMapper.toDto(newNote);
     }
 
     @Transactional
     @Override
     public NotePayloadDto saveNote(NotePayloadDto note) {
-        User user = userRepository.findByEmail(note.actorEmail())
-                .orElseThrow(() -> {
-                    log.warn("User not found email={}", note.actorEmail());
-                    return new BadRequestException(
-                            "User with this email is not registered."
-                    );
-                });
+        User user = userPolicyService.userExists(note.actorEmail());
 
         if (Helpers.isBlank(note.title()))
             throw new BadRequestException("Note title is required");
 
-        int versionNumber;
+        Note saveNote = notePolicyService.isEditor(note.actorEmail(), note.noteId());
 
-        if (note.noteId() == null) {
-            versionNumber = 1;
-            Note newNote = noteRepository.save(
-                    new Note(
-                            null,
-                            user,
-                            NoteVisibility.PUBLIC,
-                            null,
-                            null,
-                            null
-                    )
-            );
+        int versionNumber = Optional.ofNullable(noteVersionRepository.findMaxVersionByNoteId(note.noteId()))
+                .map(v -> v + 1)
+                .orElse(1);
 
-            NoteVersion firstNoteVersion = noteVersionRepository.save(
-                    new NoteVersion(
-                            null,
-                            newNote,
-                            note.title(),
-                            note.content(),
-                            user.getId(),
-                            versionNumber
-                    )
-            );
+        NoteVersion newNoteVersion = noteVersionRepository.save(
+                new NoteVersion(
+                        null,
+                        saveNote,
+                        note.title(),
+                        note.content(),
+                        user.getId(),
+                        versionNumber
+                )
+        );
 
-            newNote.setCurrentNoteVersion(firstNoteVersion.getId());
-            newNote.setNoteVersions(List.of(firstNoteVersion));
-        } else {
-            Note saveNote = notePolicyService.isEditor(note.actorEmail(), note.noteId());
+        saveNote.setCurrentNoteVersion(newNoteVersion.getId());
+        saveNote.getNoteVersions().add(newNoteVersion);
+        noteRepository.save(saveNote);
 
-            versionNumber = Optional.ofNullable(noteVersionRepository.findMaxVersionByNoteId(note.noteId()))
-                    .map(v -> v + 1)
-                    .orElse(1);
-
-            NoteVersion newNoteVersion = noteVersionRepository.save(
-                    new NoteVersion(
-                            null,
-                            saveNote,
-                            note.title(),
-                            note.content(),
-                            user.getId(),
-                            versionNumber
-                    )
-            );
-
-            saveNote.setCurrentNoteVersion(newNoteVersion.getId());
-            saveNote.getNoteVersions().add(newNoteVersion);
-            noteRepository.save(saveNote);
-
-            if (noteCache != null) {
-                noteCache.evict(note.noteId());
-            }
-        }
+//        if (noteCache != null) {
+//            noteCache.evict(note.noteId());
+//        }
         return note;
     }
 
@@ -149,9 +149,9 @@ public class NoteServiceImpl implements NoteService {
     public NotePayloadDto updateNote(NotePayloadDto note) {
         notePolicyService.isEditor(note.actorEmail(), note.noteId());
 
-        if (noteCache != null) {
-            noteCache.put(note.noteId(), note);
-        }
+//        if (noteCache != null) {
+//            noteCache.put(note.noteId(), note);
+//        }
         return note;
     }
 
@@ -200,9 +200,9 @@ public class NoteServiceImpl implements NoteService {
 
         noteRepository.delete(note);
 
-        if (noteCache != null) {
-            noteCache.evict(noteId);
-        }
+//        if (noteCache != null) {
+//            noteCache.evict(noteId);
+//        }
     }
 
     @Override

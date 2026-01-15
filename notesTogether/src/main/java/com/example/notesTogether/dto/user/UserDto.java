@@ -21,6 +21,12 @@ public record UserDto(
         )
         String email,
 
+        @Schema(
+                description = "Password for authentication",
+                example = "StrongP@ssw0rd"
+        )
+        String password,
+
         @Schema(description = "List of notes owned by the user")
         List<NoteDto> notes,
 

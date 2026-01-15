@@ -122,4 +122,18 @@ public class Note {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    @Override
+    public String toString() {
+        return "Note{" +
+                "id=" + id +
+                ", user=" + user.getId() +
+                ", visibility=" + visibility +
+                ", noteAccesses=" + noteAccesses +
+                ", currentNoteVersion=" + currentNoteVersion +
+                ", noteVersions=" + noteVersions +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
+    }
 }

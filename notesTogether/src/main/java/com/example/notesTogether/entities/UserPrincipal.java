@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 public class UserPrincipal implements UserDetails {
     private User user;
@@ -21,12 +22,20 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "12345";
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
         return user.getEmail();
+    }
+
+    public String getEmail() {
+        return user.getEmail();
+    }
+
+    public UUID getUserId() {
+        return user.getId();
     }
 
     @Override

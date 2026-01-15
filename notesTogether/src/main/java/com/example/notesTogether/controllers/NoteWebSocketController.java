@@ -37,6 +37,8 @@ public class NoteWebSocketController {
             headerAccessor.getSessionAttributes().put("actorEmail", payload.actorEmail());
             headerAccessor.getSessionAttributes().put("noteId", payload.noteId());
             NotePayloadDto result = noteService.addUserToLiveUpdate(payload);
+            System.out.println(payload);
+            System.out.println(result);
 
             messagingTemplate.convertAndSend(
                     "/topic/public/" + payload.noteId(),

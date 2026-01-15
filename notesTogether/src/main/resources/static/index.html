@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notes-Together</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <div id="login-page">
+        <div class="login-page-container">
+            <h1 class="title">Login</h1>
+            <form id="login-form" name="login-form">
+                <div class="login-form-group">
+                    <label for="email"></label><input type="text" id="email" placeholder="email" autocomplete="off" class="form">
+                    <label for="password"></label><input type="text" id="password" placeholder="password" autocomplete="off" class="form">
+                </div>
+                <div class="login-form-group">
+                    <button type="submit" class="accent email-submit">login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notes-page" class="hidden">
+        <div class="notes-page-container">
+            <h1 class="title">Notes</h1>
+            <div class="note-form-group">
+                <button type="button" id="create-note-btn" class="accent noteId-submit">create new note</button>
+            </div>
+            <ul id="notes-list">
+
+            </ul>
+        </div>
+    </div>
+
+    <div id="note-page" class="hidden">
+        <div class="note-container">
+            <div class="chat-header">
+                <h2>Notes-Together</h2>
+            </div>
+            <ul id="message-area">
+
+            </ul>
+            <form id="message-form" name="messageForm">
+                <div class="form-group">
+                    <div class="input-group clearfix">
+                        <input type="text" id="message-title" placeholder="Type the title..." autocomplete="">
+                        <input type="text" id="message-content" placeholder="Type some content..." autocomplete="">
+                        <button id="save-btn" type="button" data-action="SAVE" class="primary">Save</button>
+                        <button id="update-btn" type="button" data-action="UPDATE" class="primary">Update</button>
+                        <button id="typing-btn" type="button" data-action="TYPING" class="primary">Simulate typing</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

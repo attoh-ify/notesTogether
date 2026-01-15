@@ -17,6 +17,9 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "password", unique = false, updatable = true, nullable = false)
+    private String password;
+
     @OneToMany(mappedBy = "user", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private List<Note> notes;
 
@@ -28,9 +31,10 @@ public class User {
 
     public User() {}
 
-    public User(UUID id, String email, List<Note> notes) {
+    public User(UUID id, String email, String password, List<Note> notes) {
         this.id = id;
         this.email = email;
+        this.password = password;
         this.notes = notes;
     }
 
@@ -59,6 +63,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public List<Note> getNotes() {

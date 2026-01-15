@@ -12,10 +12,12 @@ import com.example.notesTogether.mappers.NoteMapper;
 import com.example.notesTogether.mappers.NoteVersionMapper;
 import com.example.notesTogether.repositories.NoteVersionRepository;
 import com.example.notesTogether.repositories.UserRepository;
+import com.example.notesTogether.services.impl.NotePolicyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,15 +28,17 @@ public class NoteMapperImpl implements NoteMapper {
     private final NoteAccessMapper noteAccessMapper;
     private final NoteVersionRepository noteVersionRepository;
     private final UserRepository userRepository;
+    private final NotePolicyService notePolicyService;
 
     private static final Logger log =
             LoggerFactory.getLogger(NoteMapperImpl.class);
 
-    public NoteMapperImpl(NoteVersionMapper noteVersionMapper, NoteAccessMapper noteAccessMapper, NoteVersionRepository noteVersionRepository, UserRepository userRepository) {
+    public NoteMapperImpl(NoteVersionMapper noteVersionMapper, NoteAccessMapper noteAccessMapper, NoteVersionRepository noteVersionRepository, UserRepository userRepository, NotePolicyService notePolicyService) {
         this.noteVersionMapper = noteVersionMapper;
         this.noteAccessMapper = noteAccessMapper;
         this.noteVersionRepository = noteVersionRepository;
         this.userRepository = userRepository;
+        this.notePolicyService = notePolicyService;
     }
 
     @Override
@@ -50,7 +54,7 @@ public class NoteMapperImpl implements NoteMapper {
                 noteDto.visibility(),
                 Optional.ofNullable(noteDto.noteAccesses())
                         .map(noteAccesses -> noteAccesses.stream()
-                                .map(noteAccessMapper::fromDto)
+                                .map(noteAccess -> noteAccessMapper.fromDto(noteAccess, noteDto.id()))
                                 .toList()
                         ).orElse(null),
                 noteDto.currentNoteVersion(),
@@ -63,7 +67,10 @@ public class NoteMapperImpl implements NoteMapper {
     }
 
     @Override
-    public NoteDto toDto(Note note, NoteAccessRole accessRole) {
+    public NoteDto toDto(Note note) {
+        NoteAccessRole accessRole = notePolicyService.resolveRole(note.getUser().getEmail(), note);
+        List<NoteVersionDto> noteVersionDtos = new ArrayList<>();
+        noteVersionDtos.add(getCurrentNoteVersion(note.getCurrentNoteVersion()));
         return new NoteDto(
                 note.getId(),
                 note.getUser().getId(),
@@ -76,7 +83,7 @@ public class NoteMapperImpl implements NoteMapper {
                         ).orElse(null),
                 accessRole,
                 note.getCurrentNoteVersion(),
-                List.of(getCurrentNoteVersion(note.getCurrentNoteVersion())),
+                noteVersionDtos,
                 note.getCreatedAt(),
                 note.getUpdatedAt()
         );

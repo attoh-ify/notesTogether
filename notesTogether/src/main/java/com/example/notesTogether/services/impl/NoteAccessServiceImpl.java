@@ -1,8 +1,7 @@
 package com.example.notesTogether.services.impl;
 
-import com.example.notesTogether.dto.noteAccess.AddNoteAccessDto;
-import com.example.notesTogether.dto.noteAccess.DeleteNoteAccessDto;
 import com.example.notesTogether.dto.noteAccess.NoteAccessDto;
+import com.example.notesTogether.dto.noteAccess.NoteAccessPayload;
 import com.example.notesTogether.entities.Note;
 import com.example.notesTogether.entities.NoteAccess;
 import com.example.notesTogether.entities.NoteAccessRole;
@@ -10,7 +9,6 @@ import com.example.notesTogether.entities.User;
 import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.mappers.NoteAccessMapper;
 import com.example.notesTogether.repositories.NoteAccessRepository;
-import com.example.notesTogether.repositories.UserRepository;
 import com.example.notesTogether.services.NoteAccessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,41 +23,35 @@ import java.util.UUID;
 public class NoteAccessServiceImpl implements NoteAccessService {
     private final NoteAccessRepository noteAccessRepository;
     private final NoteAccessMapper noteAccessMapper;
-    private final UserRepository userRepository;
     private final NotePolicyService notePolicyService;
+    private final UserPolicyService userPolicyService;
 
     private static final Logger log =
             LoggerFactory.getLogger(NoteAccessServiceImpl.class);
 
-    public NoteAccessServiceImpl(NoteAccessRepository noteAccessRepository, NoteAccessMapper noteAccessMapper, UserRepository userRepository, NotePolicyService notePolicyService) {
+    public NoteAccessServiceImpl(NoteAccessRepository noteAccessRepository, NoteAccessMapper noteAccessMapper, NotePolicyService notePolicyService, UserPolicyService userPolicyService) {
         this.noteAccessRepository = noteAccessRepository;
         this.noteAccessMapper = noteAccessMapper;
-        this.userRepository = userRepository;
+        this.userPolicyService = userPolicyService;
         this.notePolicyService = notePolicyService;
     }
 
     @Transactional
     @Override
-    public NoteAccessDto addAccess(String userEmail, AddNoteAccessDto noteAccess) {
+    public NoteAccessDto addAccess(String userEmail, UUID noteId, NoteAccessPayload noteAccess) {
         if (noteAccess.role().equals(NoteAccessRole.OWNER)) {
             log.warn("Owner role can not be assigned to another user");
             throw new BadRequestException("Owner role can not be assigned to another user");
         }
 
-        Note note = notePolicyService.findNoteById(noteAccess.noteId());
-        NoteAccessRole accessRole = notePolicyService.resolveRole(userEmail, note);
-
-        if (!accessRole.equals(NoteAccessRole.OWNER)) {
-            log.warn("User with the email={} is not the owner of this note", userEmail);
-            throw new BadRequestException("User with the email is not the owner of this note");
-        }
+        Note note = notePolicyService.isOwner(userEmail, noteId);
 
         if (noteAccess.email().equals(userEmail)) {
             log.warn("Owner already has access to this note");
             throw new BadRequestException("Owner already has access to this note");
         }
 
-        User newAccessUser = userExists(noteAccess.email());
+        User newAccessUser = userPolicyService.userExists(noteAccess.email());
 
         try {
             return noteAccessMapper.toDto(
@@ -80,11 +72,11 @@ public class NoteAccessServiceImpl implements NoteAccessService {
 
     @Transactional
     @Override
-    public NoteAccessDto updateAccess(String userEmail, NoteAccessDto noteAccess) {
-        notePolicyService.isOwner(userEmail, noteAccess.noteId());
-        NoteAccess updateNoteAccess = noteAccessRepository.findById(noteAccess.id())
+    public NoteAccessDto updateAccess(String userEmail, UUID noteId, UUID noteAccessId, NoteAccessPayload noteAccess) {
+        notePolicyService.isOwner(userEmail, noteId);
+        NoteAccess updateNoteAccess = noteAccessRepository.findById(noteAccessId)
                 .orElseThrow(() -> {
-                    log.warn("Note access not found id={}", noteAccess.id());
+                    log.warn("Note access not found id={}", noteAccessId);
                     return new BadRequestException(
                             "Note access with this id is not registered."
                     );
@@ -95,9 +87,9 @@ public class NoteAccessServiceImpl implements NoteAccessService {
 
     @Transactional
     @Override
-    public void deleteAccess(String userEmail, DeleteNoteAccessDto noteAccess) {
-        notePolicyService.isOwner(userEmail, noteAccess.noteId());
-        noteAccessRepository.deleteById(noteAccess.id());
+    public void deleteAccess(String userEmail, UUID noteId, UUID noteAccessId) {
+        notePolicyService.isOwner(userEmail, noteId);
+        noteAccessRepository.deleteById(noteAccessId);
     }
 
     @Transactional(readOnly = true)
@@ -108,13 +100,5 @@ public class NoteAccessServiceImpl implements NoteAccessService {
                 .stream()
                 .map(noteAccessMapper::toDto)
                 .toList();
-    }
-
-    private User userExists(String userEmail) {
-        return userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> {
-                    log.warn("User not found with email={}", userEmail);
-                    return new BadRequestException("User not found with email");
-                });
     }
 }

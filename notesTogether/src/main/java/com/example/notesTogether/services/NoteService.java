@@ -10,6 +10,7 @@ import java.util.UUID;
 public interface NoteService {
     List<NoteDto> fetchNotes(String actorEmail);
     NoteDto fetchNote(String actorEmail, UUID noteId);
+    NoteDto createNote(String actorEmail, NotePayloadDto note);
     NotePayloadDto saveNote(NotePayloadDto note);
     NotePayloadDto updateNote(NotePayloadDto note);
     NotePayloadDto addUserToLiveUpdate(NotePayloadDto note);

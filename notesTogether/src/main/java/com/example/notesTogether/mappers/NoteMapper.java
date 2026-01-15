@@ -6,5 +6,5 @@ import com.example.notesTogether.entities.NoteAccessRole;
 
 public interface NoteMapper {
     Note fromDto(NoteDto noteDto);
-    NoteDto toDto(Note note, NoteAccessRole accessRole);
+    NoteDto toDto(Note note);
 }

@@ -7,6 +7,8 @@ import com.example.notesTogether.mappers.NoteAccessMapper;
 import com.example.notesTogether.services.impl.NotePolicyService;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class NoteAccessMapperImpl implements NoteAccessMapper {
     private final NotePolicyService notePolicyService;
@@ -16,8 +18,8 @@ public class NoteAccessMapperImpl implements NoteAccessMapper {
     }
 
     @Override
-    public NoteAccess fromDto(NoteAccessDto noteAccessDto) {
-        Note note = noteAccessDto.noteId() != null ? notePolicyService.findNoteById(noteAccessDto.noteId()) : null;
+    public NoteAccess fromDto(NoteAccessDto noteAccessDto, UUID noteId) {
+        Note note = noteId != null ? notePolicyService.findNoteById(noteId) : null;
         return new NoteAccess(
                 noteAccessDto.id(),
                 note,
@@ -30,7 +32,6 @@ public class NoteAccessMapperImpl implements NoteAccessMapper {
     public NoteAccessDto toDto(NoteAccess noteAccess) {
         return new NoteAccessDto(
                 noteAccess.getId(),
-                noteAccess.getNote().getId(),
                 noteAccess.getEmail(),
                 noteAccess.getRole()
         );
