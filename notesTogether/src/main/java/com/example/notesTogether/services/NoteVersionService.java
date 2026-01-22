@@ -1,12 +1,12 @@
 package com.example.notesTogether.services;
 
-import com.example.notesTogether.entities.NoteVersion;
+import com.example.notesTogether.dto.noteVersion.NoteVersionDto;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface NoteVersionService {
-    List<NoteVersion> fetchAllVersions(String actorEmail, UUID noteId);
-    NoteVersion fetchVersion(String actorEmail, UUID noteId, UUID noteVersionId);
-    NoteVersion restoreVersion(String actorEmail, UUID noteId, UUID noteVersionId);
+    List<NoteVersionDto> fetchAllVersions(String actorEmail, UUID noteId);
+    NoteVersionDto fetchVersion(String actorEmail, UUID noteId, UUID noteVersionId);
+    NoteVersionDto restoreVersion(String actorEmail, UUID noteId, UUID noteVersionId);
 }

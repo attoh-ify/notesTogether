@@ -14,15 +14,9 @@ public record NoteVersionDto(
         UUID id,
 
         @Schema(
-                description = "Title of the note for this version",
-                example = "Project Meeting Notes"
-        )
-        String title,
-
-        @Schema(
                 description = "Content of the note in JSON format for this version"
         )
-        String contentJson,
+        byte[] contentJson,
 
         @Schema(
                 description = "Identifier of the user who created this version",

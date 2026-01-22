@@ -18,6 +18,9 @@ public class Note {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(name = "title", nullable = false)
+    private String title;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false)
     private NoteVisibility visibility;
@@ -39,9 +42,10 @@ public class Note {
 
     public Note() {}
 
-    public Note(UUID id, User user, NoteVisibility visibility,  List<NoteAccess> noteAccesses, UUID currentNoteVersion, List<NoteVersion> noteVersions) {
+    public Note(UUID id, User user, String title, NoteVisibility visibility,  List<NoteAccess> noteAccesses, UUID currentNoteVersion, List<NoteVersion> noteVersions) {
         this.id = id;
         this.user = user;
+        this.title = title;
         this.visibility = visibility;
         this.noteAccesses = noteAccesses;
         this.currentNoteVersion = currentNoteVersion;
@@ -69,6 +73,14 @@ public class Note {
 
     public User getUser() {
         return user;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setUser(User user) {

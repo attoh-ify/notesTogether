@@ -4,7 +4,6 @@ import com.example.notesTogether.dto.noteAccess.NoteAccessDto;
 import com.example.notesTogether.dto.noteAccess.NoteAccessPayload;
 import com.example.notesTogether.entities.Note;
 import com.example.notesTogether.entities.NoteAccess;
-import com.example.notesTogether.entities.NoteAccessRole;
 import com.example.notesTogether.entities.User;
 import com.example.notesTogether.exceptions.BadRequestException;
 import com.example.notesTogether.mappers.NoteAccessMapper;
@@ -39,12 +38,7 @@ public class NoteAccessServiceImpl implements NoteAccessService {
     @Transactional
     @Override
     public NoteAccessDto addAccess(String userEmail, UUID noteId, NoteAccessPayload noteAccess) {
-        if (noteAccess.role().equals(NoteAccessRole.OWNER)) {
-            log.warn("Owner role can not be assigned to another user");
-            throw new BadRequestException("Owner role can not be assigned to another user");
-        }
-
-        Note note = notePolicyService.isOwner(userEmail, noteId);
+        Note note = notePolicyService.validateSuper(userEmail, noteId);
 
         if (noteAccess.email().equals(userEmail)) {
             log.warn("Owner already has access to this note");
@@ -73,7 +67,7 @@ public class NoteAccessServiceImpl implements NoteAccessService {
     @Transactional
     @Override
     public NoteAccessDto updateAccess(String userEmail, UUID noteId, UUID noteAccessId, NoteAccessPayload noteAccess) {
-        notePolicyService.isOwner(userEmail, noteId);
+        notePolicyService.validateSuper(userEmail, noteId);
         NoteAccess updateNoteAccess = noteAccessRepository.findById(noteAccessId)
                 .orElseThrow(() -> {
                     log.warn("Note access not found id={}", noteAccessId);
@@ -88,14 +82,14 @@ public class NoteAccessServiceImpl implements NoteAccessService {
     @Transactional
     @Override
     public void deleteAccess(String userEmail, UUID noteId, UUID noteAccessId) {
-        notePolicyService.isOwner(userEmail, noteId);
+        notePolicyService.validateSuper(userEmail, noteId);
         noteAccessRepository.deleteById(noteAccessId);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<NoteAccessDto> getAllAccess(String userEmail, UUID noteId) {
-        notePolicyService.isOwner(userEmail, noteId);
+        notePolicyService.validateSuper(userEmail, noteId);
         return noteAccessRepository.findByNoteId(noteId)
                 .stream()
                 .map(noteAccessMapper::toDto)

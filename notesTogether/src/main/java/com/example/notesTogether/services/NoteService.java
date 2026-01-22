@@ -12,7 +12,6 @@ public interface NoteService {
     NoteDto fetchNote(String actorEmail, UUID noteId);
     NoteDto createNote(String actorEmail, NotePayloadDto note);
     NotePayloadDto saveNote(NotePayloadDto note);
-    NotePayloadDto updateNote(NotePayloadDto note);
     NotePayloadDto addUserToLiveUpdate(NotePayloadDto note);
     void deleteNote(String actorEmail, UUID noteId);
     void changeNoteVisibility(String userEmail, UUID noteId, NoteVisibility visibility);

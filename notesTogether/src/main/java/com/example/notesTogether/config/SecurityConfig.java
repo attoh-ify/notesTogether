@@ -56,6 +56,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 "/ws/**",
+                                "/yjs/**",
                                 "/ws/info",
                                 "/api/users/login",
                                 "/api/users/register"

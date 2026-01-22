@@ -1,13 +1,10 @@
 package com.example.notesTogether.dto.note;
 
-import com.example.notesTogether.dto.noteVersion.NoteVersionDto;
-import com.example.notesTogether.dto.noteAccess.NoteAccessDto;
 import com.example.notesTogether.entities.NoteAccessRole;
 import com.example.notesTogether.entities.NoteVisibility;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Schema(description = "Represents a note returned by the NotesTogether service")
@@ -25,15 +22,16 @@ public record NoteDto(
         UUID userId,
 
         @Schema(
+                description = "Title of the note",
+                example = "Project Meeting Notes"
+        )
+        String title,
+
+        @Schema(
                 description = "Visibility of the note, either private or public",
                 example = "PRIVATE"
         )
         NoteVisibility visibility,
-
-        @Schema(
-                description = "List of user users with access to the note"
-        )
-        List<NoteAccessDto> noteAccesses,
 
         @Schema(
                 description = "Current users role on the note",
@@ -45,11 +43,6 @@ public record NoteDto(
                 description = "Current note version UUID"
         )
         UUID currentNoteVersion,
-
-        @Schema(
-                description = "List of note versions associated with the note"
-        )
-        List<NoteVersionDto> noteVersions,
 
         @Schema(
                 description = "Timestamp when the note was created",

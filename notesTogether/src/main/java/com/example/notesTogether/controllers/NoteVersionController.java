@@ -1,7 +1,7 @@
 package com.example.notesTogether.controllers;
 
 import com.example.notesTogether.dto.ResponseDto;
-import com.example.notesTogether.entities.NoteVersion;
+import com.example.notesTogether.dto.noteVersion.NoteVersionDto;
 import com.example.notesTogether.entities.UserPrincipal;
 import com.example.notesTogether.security.CurrentUser;
 import com.example.notesTogether.services.NoteVersionService;
@@ -36,7 +36,7 @@ public class NoteVersionController {
             @Parameter(description = "Unique identifier of the note", required = true)
             @PathVariable UUID noteId
     ) {
-        List<NoteVersion> versions = noteVersionService.fetchAllVersions(currentUser.getEmail(), noteId);
+        List<NoteVersionDto> versions = noteVersionService.fetchAllVersions(currentUser.getEmail(), noteId);
         return new ResponseDto("Note versions fetched", versions);
     }
 
@@ -51,7 +51,7 @@ public class NoteVersionController {
             @Parameter(description = "Unique identifier of the note version", required = true)
             @PathVariable UUID versionId
     ) {
-        NoteVersion version = noteVersionService.fetchVersion(currentUser.getEmail(), noteId, versionId);
+        NoteVersionDto version = noteVersionService.fetchVersion(currentUser.getEmail(), noteId, versionId);
         return new ResponseDto("Note version fetched", version);
     }
 
@@ -66,7 +66,7 @@ public class NoteVersionController {
             @Parameter(description = "Unique identifier of the note version", required = true)
             @PathVariable UUID versionId
     ) {
-        NoteVersion restored = noteVersionService.restoreVersion(currentUser.getEmail(), noteId, versionId);
+        NoteVersionDto restored = noteVersionService.restoreVersion(currentUser.getEmail(), noteId, versionId);
         return new ResponseDto("Note restored to version", restored);
     }
 }

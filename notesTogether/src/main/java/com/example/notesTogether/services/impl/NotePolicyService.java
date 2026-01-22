@@ -1,25 +1,34 @@
 package com.example.notesTogether.services.impl;
 
+import com.example.notesTogether.dto.noteVersion.NoteVersionDto;
 import com.example.notesTogether.entities.Note;
 import com.example.notesTogether.entities.NoteAccess;
 import com.example.notesTogether.entities.NoteAccessRole;
+import com.example.notesTogether.entities.NoteVersion;
 import com.example.notesTogether.exceptions.BadRequestException;
+import com.example.notesTogether.mappers.NoteVersionMapper;
 import com.example.notesTogether.repositories.NoteRepository;
+import com.example.notesTogether.repositories.NoteVersionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class NotePolicyService {
     private final NoteRepository noteRepository;
+    private final NoteVersionRepository noteVersionRepository;
+    private final NoteVersionMapper noteVersionMapper;
 
     private static final Logger log =
             LoggerFactory.getLogger(NotePolicyService.class);
 
-    public NotePolicyService(NoteRepository noteRepository) {
+    public NotePolicyService(NoteRepository noteRepository, NoteVersionRepository noteVersionRepository, NoteVersionMapper noteVersionMapper) {
         this.noteRepository = noteRepository;
+        this.noteVersionRepository = noteVersionRepository;
+        this.noteVersionMapper = noteVersionMapper;
     }
 
     public Note findNoteById(UUID noteId) {
@@ -35,7 +44,7 @@ public class NotePolicyService {
     public NoteAccessRole resolveRole(String actorEmail, Note note) {
         NoteAccessRole accessRole;
 
-        accessRole = note.getUser().getEmail().equals(actorEmail) ? NoteAccessRole.OWNER : null;
+        accessRole = note.getUser().getEmail().equals(actorEmail) ? NoteAccessRole.SUPER : null;
 
         if (accessRole != null) return accessRole;
 
@@ -48,25 +57,51 @@ public class NotePolicyService {
         return accessRole;
     }
 
-    public Note isOwner(String userEmail, UUID noteId) {
+    public Note validateOwner(String userEmail, UUID noteId) {
         Note note = findNoteById(noteId);
-        NoteAccessRole accessRole = resolveRole(userEmail, note);
 
-        if (!accessRole.equals(NoteAccessRole.OWNER)) {
+        if (!note.getUser().getEmail().equals(userEmail)) {
             log.warn("User with the email={} is not the owner of this note", userEmail);
             throw new BadRequestException("User with the email is not the owner of this note");
         }
         return note;
     }
 
-    public Note isEditor(String userEmail, UUID noteId) {
+    public Note validateSuper(String userEmail, UUID noteId) {
         Note note = findNoteById(noteId);
         NoteAccessRole accessRole = resolveRole(userEmail, note);
 
-        if (!accessRole.equals(NoteAccessRole.OWNER) && !accessRole.equals(NoteAccessRole.EDITOR)) {
+        if (!accessRole.equals(NoteAccessRole.SUPER)) {
+            log.warn("User with the email={} does not have super user access control of this note", userEmail);
+            throw new BadRequestException("User with the email  does not have super user access control of this note");
+        }
+        return note;
+    }
+
+    public Note validateEditor(String userEmail, UUID noteId) {
+        Note note = findNoteById(noteId);
+        NoteAccessRole accessRole = resolveRole(userEmail, note);
+
+        if (!accessRole.equals(NoteAccessRole.SUPER) && !accessRole.equals(NoteAccessRole.EDITOR)) {
             log.warn("User with the email={} is not allowed to edit this note", userEmail);
             throw new BadRequestException("User with the email is not allowed to edit this note");
         }
         return note;
+    }
+
+    public Note validateViewer(String userEmail, UUID noteId) {
+        Note note = findNoteById(noteId);
+        NoteAccessRole accessRole = resolveRole(userEmail, note);
+
+        if (!accessRole.equals(NoteAccessRole.SUPER) && !accessRole.equals(NoteAccessRole.EDITOR) && !accessRole.equals(NoteAccessRole.VIEWER)) {
+            log.warn("User with the email={} is not allowed to view this note", userEmail);
+            throw new BadRequestException("User with the email is not allowed to view this note");
+        }
+        return note;
+    }
+
+    public NoteVersionDto getCurrentNoteVersion(UUID currentNoteVersionId) {
+        Optional<NoteVersion> noteVersion = noteVersionRepository.findById(currentNoteVersionId);
+        return noteVersion.map(noteVersionMapper::toDto).orElse(null);
     }
 }

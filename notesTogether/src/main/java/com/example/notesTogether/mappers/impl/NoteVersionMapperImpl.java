@@ -12,7 +12,6 @@ public class NoteVersionMapperImpl implements NoteVersionMapper {
         return new NoteVersion(
                 noteVersionDto.id(),
                 null,
-                noteVersionDto.title(),
                 noteVersionDto.contentJson(),
                 noteVersionDto.createdBy(),
                 noteVersionDto.versionNumber()
@@ -23,7 +22,6 @@ public class NoteVersionMapperImpl implements NoteVersionMapper {
     public NoteVersionDto toDto(NoteVersion noteVersion) {
         return new NoteVersionDto(
                 noteVersion.getId(),
-                noteVersion.getTitle(),
                 noteVersion.getContentJson(),
                 noteVersion.getCreatedBy(),
                 noteVersion.getVersionNumber(),

@@ -1,7 +1,7 @@
 package com.example.notesTogether.entities;
 
 public enum NoteAccessRole {
-    OWNER,
+    SUPER,
     EDITOR,
     VIEWER
 }

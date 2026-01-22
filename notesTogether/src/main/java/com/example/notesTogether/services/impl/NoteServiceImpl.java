@@ -80,6 +80,7 @@ public class NoteServiceImpl implements NoteService {
         Note newNote = new Note(
                 null,
                 user,
+                note.title(),
                 NoteVisibility.PUBLIC,
                 null,
                 null,
@@ -90,7 +91,6 @@ public class NoteServiceImpl implements NoteService {
         NoteVersion firstNoteVersion = new NoteVersion(
                 null,
                 newNote,
-                note.title(),
                 note.content(),
                 user.getId(),
                 1
@@ -117,7 +117,7 @@ public class NoteServiceImpl implements NoteService {
         if (Helpers.isBlank(note.title()))
             throw new BadRequestException("Note title is required");
 
-        Note saveNote = notePolicyService.isEditor(note.actorEmail(), note.noteId());
+        Note saveNote = notePolicyService.validateEditor(note.actorEmail(), note.noteId());
 
         int versionNumber = Optional.ofNullable(noteVersionRepository.findMaxVersionByNoteId(note.noteId()))
                 .map(v -> v + 1)
@@ -127,7 +127,6 @@ public class NoteServiceImpl implements NoteService {
                 new NoteVersion(
                         null,
                         saveNote,
-                        note.title(),
                         note.content(),
                         user.getId(),
                         versionNumber
@@ -144,20 +143,20 @@ public class NoteServiceImpl implements NoteService {
         return note;
     }
 
-    @Transactional
-    @Override
-    public NotePayloadDto updateNote(NotePayloadDto note) {
-        notePolicyService.isEditor(note.actorEmail(), note.noteId());
-
-//        if (noteCache != null) {
-//            noteCache.put(note.noteId(), note);
-//        }
-        return note;
-    }
+//    @Transactional
+//    @Override
+//    public NotePayloadDto updateNote(NotePayloadDto note) {
+//        notePolicyService.validateEditor(note.actorEmail(), note.noteId());
+//
+////        if (noteCache != null) {
+////            noteCache.put(note.noteId(), note);
+////        }
+//        return note;
+//    }
 
     @Override
     public NotePayloadDto addUserToLiveUpdate(NotePayloadDto note) {
-        Note currentNote = notePolicyService.isEditor(note.actorEmail(), note.noteId());
+        Note currentNote = notePolicyService.validateEditor(note.actorEmail(), note.noteId());
         NoteVersion currentNoteVersion = noteVersionRepository.findById(currentNote.getCurrentNoteVersion())
                 .orElseThrow(() -> {
                     log.warn("Note version not found for id={}", currentNote.getCurrentNoteVersion());
@@ -181,7 +180,7 @@ public class NoteServiceImpl implements NoteService {
         return new NotePayloadDto(
                 note.actorEmail(),
                 note.noteId(),
-                currentNoteVersion.getTitle(),
+                note.title(),
                 currentNoteVersion.getContentJson(),
                 WebsocketAction.JOIN);
     }
@@ -189,15 +188,7 @@ public class NoteServiceImpl implements NoteService {
     @Transactional
     @Override
     public void deleteNote(String actorEmail, UUID noteId) {
-        Note note = notePolicyService.findNoteById(noteId);
-
-        NoteAccessRole accessRole = notePolicyService.resolveRole(actorEmail, note);
-
-        if (!accessRole.equals(NoteAccessRole.OWNER)) {
-            log.warn("User with this email={} does not have permission to delete this note", actorEmail);
-            throw new BadRequestException("User with this email does not have permission to delete this note");
-        }
-
+        Note note = notePolicyService.validateOwner(actorEmail, noteId);
         noteRepository.delete(note);
 
 //        if (noteCache != null) {
@@ -207,15 +198,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public void changeNoteVisibility(String userEmail, UUID noteId, NoteVisibility visibility) {
-        Note note = notePolicyService.findNoteById(noteId);
-
-        NoteAccessRole accessRole = notePolicyService.resolveRole(userEmail, note);
-
-        if (!accessRole.equals(NoteAccessRole.OWNER)) {
-            log.warn("User with email={} is not allowed to change the visibility of this note", userEmail);
-            throw new BadRequestException("User with this email is not allowed to change the visibility of this note");
-        }
-
+        Note note = notePolicyService.validateSuper(userEmail, noteId);
         note.setVisibility(visibility);
         noteRepository.save(note);
     }

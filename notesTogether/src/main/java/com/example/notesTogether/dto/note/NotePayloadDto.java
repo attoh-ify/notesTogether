@@ -20,7 +20,7 @@ public record NotePayloadDto(
         UUID noteId,
 
         @Schema(
-                description = "Title of the note for update/save",
+                description = "Title of the note",
                 example = "Project Meeting Notes"
         )
         String title,
@@ -28,7 +28,7 @@ public record NotePayloadDto(
         @Schema(
                 description = "Content of the note in JSON format for update/save"
         )
-        String content,
+        byte[] content,
 
         @Schema(
                 description = "Action to be performed on the Websocket",
